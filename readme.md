@@ -1,16 +1,18 @@
-# Mems Speakers Development Board
+# Helike - MEMS Speakers Development Board
 
 _Make your mems speakers- based project a reality._
 
-## Helike Ua-e3010
-tap Into The Latest Speaker Technology. Helike Is A Universal Application Platform For Evaluating, Rapid Prototyping And Designing Audio Solutions Using Usound Mems Speaker Technology. The Stand-alone Board Is Also Compatible With Raspberry Pi. It Features An Open-source Software As Well As Pc Based Configuration Software For Acoustic Tuning.
+## Helike UA-E3010
+Tap into the latest speaker technology. Helike is a universal application platform for evaluating, rapid prototyping and designing audio solutions using USound MEMS speaker technology. The stand-alone board is also compatible with Raspberry Pi. It features an open-source software as well as PC based configuration software for acoustic tuning.
 
 ## Features
 ### Compatibility
-the Board Functions In A Standalone Mode, As An Extension To Raspberry Pi Platform Or Even As A Usb Soundcard Connected To A Mobile Device Or A Pc Via Usb-c.
+The board functions in a standalone mode, as an extension to Raspberry Pi platform or even as a USB soundcard connected to a mobile device or a PC via USB-C.
 
 ### Applications
-mems Speaker Amplifiers (mems Amp), Electrodynamic Speaker Amplifiers (dynamic Amp) As Well As A Differential Amplifier (differential Amp) Are Mounted On The Pcb To Work With A Variety Of Applications. An Output Connector Section Is Present To Interface To These Loads And Applications.
+MEMS speaker amplifiers (MEMS AMP), electrodynamic speaker amplifiers (Dynamic AMP) as well as a differential amplifier (Differential AMP) are mounted on the PCB to work with a variety of applications. An output connector section is present to interface to these loads and applications.
 
 ### Evaluation And Prototyping
-the Board Can Be Used For Evaluating Several Usound Audio Solutions, Rapid Prototyping And Designing New Customer Solutions. Additionally, Equalization Presets Are Available For The Compatible Usound Products.
+The board can be used for evaluating several USound audio solutions, rapid prototyping and designing new customer solutions. Additionally, equalization presets are available for the compatible USound products.
+
+More infomation about USound products can be found [here](https://www.usound.com/products/).
