@@ -1,69 +1,16 @@
-# Features
+# Mems Speakers Development Board
 
-Please Press _Enter_ key to end a current BIST command. Type _help_ to list the commands.
+_Make your mems speakers- based project a reality._
 
-## 1 Show Status
-```
-HELIKE Terminal (v0.4.0) May 27 2020 12:05:05
+## Helike Ua-e3010
+tap Into The Latest Speaker Technology. Helike Is A Universal Application Platform For Evaluating, Rapid Prototyping And Designing Audio Solutions Using Usound Mems Speaker Technology. The Stand-alone Board Is Also Compatible With Raspberry Pi. It Features An Open-source Software As Well As Pc Based Configuration Software For Acoustic Tuning.
 
-/> bist
-/bist/> status
+## Features
+### Compatibility
+the Board Functions In A Standalone Mode, As An Extension To Raspberry Pi Platform Or Even As A Usb Soundcard Connected To A Mobile Device Or A Pc Via Usb-c.
 
-DAC TWEETER:   ENABLED
-DAC WOOFER:    ENABLED
-WOOFER AMP R:  ENABLED
-WOOFER AMP L:  ENABLED
-SDCARD FS:     NOT MOUNTED
+### Applications
+mems Speaker Amplifiers (mems Amp), Electrodynamic Speaker Amplifiers (dynamic Amp) As Well As A Differential Amplifier (differential Amp) Are Mounted On The Pcb To Work With A Variety Of Applications. An Output Connector Section Is Present To Interface To These Loads And Applications.
 
-```
-
-## 2 Test buttons
-```
-HELIKE Terminal (v0.4.0) May 27 2020 12:05:05
-
-/> bist
-/bist/> buttons
-Joystick:       Dipswitches: 1234 Dipswitch cfg: 1234
-```
-## 3 Test audio
-```
-HELIKE Terminal (v0.4.0) May 27 2020 12:05:05
-
-/> bist
-/bist/> audio
-\
-```
-## 4 Re-run BIST
-_Takes about 5 seconds_
-```
-HELIKE Terminal (v0.4.0) May 27 2020 12:05:05
-
-/> bist
-/bist/> run_bist
-
-DAC TWEETER:   ENABLED
-DAC WOOFER:    ENABLED
-WOOFER AMP R:  ENABLED
-WOOFER AMP L:  ENABLED
-SDCARD FS:     NOT MOUNTED
-
-```
-
-## 5 SD card test
-```
-HELIKE Terminal (v0.4.0) May 27 2020 12:05:05
-
-/> bist
-/bist/> status
-
-DAC TWEETER:   ENABLED
-DAC WOOFER:    ENABLED
-WOOFER AMP R:  ENABLED
-WOOFER AMP L:  ENABLED
-SDCARD FS:     NOT MOUNTED
-/bist/> exit
-/> system
-/system/> ls
-
-SDCARD FS:     NOT MOUNTED
-```
+### Evaluation And Prototyping
+the Board Can Be Used For Evaluating Several Usound Audio Solutions, Rapid Prototyping And Designing New Customer Solutions. Additionally, Equalization Presets Are Available For The Compatible Usound Products.
