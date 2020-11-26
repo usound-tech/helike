@@ -47,7 +47,6 @@ class FilterReader: public GlobalServiceConsumer
 private:
   System::FilterConfiguration *filterConfig;
 
-  void extractConfig(const uint8_t *data);
   void extractDrcConfig(const uint8_t *data, const char *name, System::DrcConfiguration &drcConfig);
   void extractPredistortionConfig(const uint8_t *data, const char *name, System::PredistortionConfiguration &predistortionConfig);
 
@@ -61,6 +60,7 @@ private:
 public:
   FilterReader(System::FilterConfiguration *filterConfig);
 
+  void extractConfig(const uint8_t *data);
   void configFilter(uint32_t configOption);
 };
 

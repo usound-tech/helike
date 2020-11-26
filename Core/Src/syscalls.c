@@ -126,18 +126,9 @@ caddr_t _sbrk(int incr)
   static char *heap_start = (char*) systemHeap;
   char *prev_heap_end;
 
-  /*
-   if (heap_end == 0)
-   {
-   heap_end = &end;
-   heap_start = &start;
-   }*/
-
   prev_heap_end = heap_end;
   if (heap_end + incr >= (heap_start + (128 * 1024)))
   {
-//		write(1, "Heap and stack collision\n", 25);
-//		abort();
     errno = ENOMEM;
     return (caddr_t) -1;
   }

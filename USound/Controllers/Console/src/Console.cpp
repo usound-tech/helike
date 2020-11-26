@@ -35,7 +35,6 @@
 #include <Controllers/Console/pub/Console.hpp>
 #include "Utilities/Logger/pub/Logger.h"
 #include "main.h"
-//#include "fatfs.h"
 #include "OAL/pub/Oal.hpp"
 #include "Terminal.hpp"
 #include <cstring>

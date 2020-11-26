@@ -95,6 +95,7 @@ enum SystemAudioSource
   AUDIO_SRC_FILE,          //!< The audio file player/decoder
   AUDIO_SRC_GENERATOR,
   AUDIO_SRC_SAI,          //!< Slave I2S input
+  AUDIO_SRC_USB,          //!< USB UAC input
   AUDIO_SRC_COUNT,        //!< The max number of audio sources
   AUDIO_SRC_NONE = -1     //!< No interface selected
 };

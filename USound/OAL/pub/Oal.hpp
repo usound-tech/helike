@@ -64,6 +64,7 @@ class Oal
 public:
   virtual void* createMessageQueue(uint32_t msg_count, uint32_t msg_size) = 0;
   virtual uint32_t popMessageFromQueue(void *queue, void *msg_ptr, uint32_t timeout) = 0;
+  virtual uint32_t popMessageFromQueueFromISR(void *queue, void *msg_ptr, uint32_t timeout) = 0;
   virtual void sendMessageToQueue(void *queue, const void *msg_ptr, uint32_t timeout) = 0;
   virtual OalTask* startTask(char *name, uint32_t stackSize, OalTaskPriority priority, void (*func)(void*), void *argument) = 0;
   virtual void delay(uint32_t ticks) = 0;

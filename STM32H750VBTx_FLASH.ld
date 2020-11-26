@@ -16,7 +16,7 @@
 **
 **  Target      : STMicroelectronics STM32
 **
-**  Distribution: The file is distributed “as is,” without any warranty
+**  Distribution: The file is distributed "as is", without any warranty
 **                of any kind.
 **
 *****************************************************************************
@@ -180,6 +180,10 @@ SECTIONS
   ._ram :
   {
   } >RAM_D1
+  
+  ._ram2 :
+  {
+  } >RAM_D2
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

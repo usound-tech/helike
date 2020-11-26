@@ -34,12 +34,15 @@
 
 #include "../pub/SystemConfiguration.hpp"
 #include "Interfaces/pub/SystemControl.hpp"
-#include "filters/FilterReader.hpp"
+#include "../pub/FilterReader.hpp"
+#include "Interfaces/Usb/src/Core/Inc/usbd_def.h"
+#include "Controllers/Filesystem/pub/Filesystem.hpp"
 
 #include "sai.h"
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+extern USBD_HandleTypeDef hUsbDeviceFS;
 
 namespace System
 {
@@ -74,8 +77,11 @@ void SystemConfiguration::init()
       | (1 << SystemPeripheral::TWEETER_AMP_R)
       | (1 << SystemPeripheral::WOOFER_AMP_R)
       | (1 << SystemPeripheral::WOOFER_AMP_L)
-      | (1 << (SystemAudioSource::AUDIO_SRC_GENERATOR + 16))
       | (1 << (SystemAudioSink::AUDIO_SINK_LOCAL + 24));
+
+#if TONE_GEN_ENABLED == 1
+  peripheralAvailability |= (1 << (SystemAudioSource::AUDIO_SRC_GENERATOR + 16));
+#endif
 
   audioBufferingTime = 4; // 4ms buffering time
 
@@ -120,6 +126,8 @@ void SystemConfiguration::init()
   gpioConfig[GpioInterface::GPIO_DIPSWITCH_CFG_2] = new GpioConfiguration(GPIOC, GPIO_PIN_11, NO_EXTI_PIN, false);
   gpioConfig[GpioInterface::GPIO_DIPSWITCH_CFG_3] = new GpioConfiguration(GPIOC, GPIO_PIN_3, NO_EXTI_PIN, false);
   gpioConfig[GpioInterface::GPIO_DIPSWITCH_CFG_4] = new GpioConfiguration(GPIOC, GPIO_PIN_2, NO_EXTI_PIN, false);
+
+  usbConfig = new UsbConfiguration(audioBufferingTime, 48000);
 }
 
 /**
@@ -239,6 +247,9 @@ void* SystemConfiguration::getHandleForSystemBus(SystemBus bus) const
     case SystemBus::SAI_IN:
       return (peripheralAvailability & (1 << (SystemAudioSource::AUDIO_SRC_SAI + 16))) ? &hsai_BlockA2 : nullptr;
 
+    case SystemBus::USB:
+      return &hUsbDeviceFS;
+
     default:
       return nullptr;
   }
@@ -311,6 +322,16 @@ SaiConfiguration* SystemConfiguration::getSaiInterfaceConfiguration(SaiInterface
 }
 
 /**
+ * Returns the Usb configuration.
+ * @param interface
+ * @return
+ */
+UsbConfiguration* SystemConfiguration::getUsbConfiguration() const
+{
+  return usbConfig;
+}
+
+/**
  * Returns the DRC block configuration
  */
 FilterConfiguration* SystemConfiguration::getFilterConfiguration() const
@@ -327,6 +348,7 @@ void SystemConfiguration::updateConfigFromDipSwitches(uint32_t dipSwitchState)
   switch (audioModeSwitches)
   {
     case 0:
+      // Standalone media player
       peripheralAvailability |= (1 << (SystemAudioSource::AUDIO_SRC_FILE + 16));
       audioMode = AudioMode::AM_MP3;
 
@@ -338,6 +360,7 @@ void SystemConfiguration::updateConfigFromDipSwitches(uint32_t dipSwitchState)
       break;
 
     case (1 << GpioInterface::GPIO_DIPSWITCH_CFG_4):
+      // SAI slave
       peripheralAvailability |= (1 << (SystemAudioSource::AUDIO_SRC_SAI + 16))
           | (1 << SystemPeripheral::MCLK_PLL);
 
@@ -350,9 +373,20 @@ void SystemConfiguration::updateConfigFromDipSwitches(uint32_t dipSwitchState)
       saiConfig[SaiInterface::IN] = new SaiConfiguration(2, 48000, &hsai_BlockA2, SaiInterface::IN, SaiMode::SAI_MODE_RX_SLAVE_EXTERNAL);
       break;
 
-    default:
-      case (1 << GpioInterface::GPIO_DIPSWITCH_CFG_3):
+    case (1 << GpioInterface::GPIO_DIPSWITCH_CFG_3):
+      // USB in
+      peripheralAvailability |= (1 << (SystemAudioSource::AUDIO_SRC_USB + 16));
       audioMode = AudioMode::AM_USB;
+
+      saiConfig[SaiInterface::TWEETER] = new SaiConfiguration(audioBufferingTime, 48000, &hsai_BlockA3, SaiInterface::TWEETER,
+          SaiMode::SAI_MODE_TX_MASTER);
+      saiConfig[SaiInterface::WOOFER] = new SaiConfiguration(audioBufferingTime, 48000, &hsai_BlockB3, SaiInterface::WOOFER,
+          SaiMode::SAI_MODE_TX_SLAVE_INTERNAL);
+      saiConfig[SaiInterface::IN] = nullptr;
+      break;
+
+    default:
+      audioMode = AudioMode::AM_MP3;
       break;
   }
 
@@ -375,6 +409,8 @@ void SystemConfiguration::updateFilterConfiguration()
 #if CONFIG_POS == 0
   if (targetSpeakerSwitches)
   {
+    globalServices->getFilesystem()->mount();
+
     FilterReader filterReader(filterConfig);
     filterReader.configFilter(targetSpeakerSwitches);
   }

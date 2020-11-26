@@ -41,3 +41,6 @@
 
 //!< When set to 1, it enables the predistortion filter
 #define PREDISTORTION_MODULE_ENABLED 1
+
+//!< When set to 1, the tone generator is included as an audio source
+#define TONE_GEN_ENABLED 0

@@ -271,6 +271,7 @@ bool CliCommands::showButtonStatus(const CliCommand &cmd, StringTokenizer &token
 bool CliCommands::playAudioPattern(const CliCommand &cmd, StringTokenizer &tokenizer, std::function<void(const char *text)> print,
     std::function<void(char*, uint16_t*, uint32_t)> gets)
 {
+#if TONE_GEN_ENABLED == 1
   uint8_t spinner[] = "\\|/-";
   uint32_t spinnerIdx = 0;
   uint32_t delay = 100;
@@ -305,6 +306,8 @@ bool CliCommands::playAudioPattern(const CliCommand &cmd, StringTokenizer &token
 
   audioService->stopPlay();
   audioService->selectAudioSource(prevSrc);
+#endif
+
   print("\n");
   return true;
 }
@@ -582,8 +585,11 @@ const CliCommand CliCommands::bistCommands[] =
                 "\t\tIf [x] == 0 or missing, the command will run only one bist cycle.\n"
                 "\t\tWhen running in a loop, press any key to exit",
             CliCommands::runBist, 0 },
-        { "buttons", "Reports the button & switch state. Press any key to exit", CliCommands::showButtonStatus, 0 },
-        { "audio", "Plays an audio pattern. Press any key to exit", CliCommands::playAudioPattern, 0 }
+        { "buttons", "Reports the button & switch state. Press any key to exit", CliCommands::showButtonStatus, 0 }
+
+#if TONE_GEN_ENABLED == 1
+        ,{ "audio", "Plays an audio pattern. Press any key to exit", CliCommands::playAudioPattern, 0 }
+#endif
     };
 
 const CliCommand CliCommands::systemCommands[] =

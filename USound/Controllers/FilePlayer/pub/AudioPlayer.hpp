@@ -73,6 +73,7 @@ enum AudioPlayerState
   AP_UNCONFIGURED,
   AP_IDLE,
   AP_PLAYING,
+  AP_PAUSED,
   AP_ERROR
 };
 
@@ -87,6 +88,9 @@ private:
   std::string filename;
   MediaFileReader *fileReaders[AudioFileReader::MAX_READERS];
   MediaFileReader *activeReader;
+  Fifo<int16_t> samplesFifo;
+  uint32_t audioBufferSize = 0;
+  uint32_t chunkSize = 0;
 
 private:
   static void taskEntry(void *argument);

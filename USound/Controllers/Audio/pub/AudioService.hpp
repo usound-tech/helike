@@ -44,6 +44,13 @@ class Drc;
 namespace System
 {
 
+enum AudioChangeSrc
+{
+  ACS_JOYSTICK,
+  ACS_USB,
+  ACS_AUDIO_ENGINE
+};
+
 /**
  * This service is responsible for the control and data plane of the system audio
  */
@@ -67,6 +74,8 @@ private:
   SystemAudioSource systemAudioSrc = SystemAudioSource::AUDIO_SRC_NONE;
   SystemAudioSink systemAudioSink = SystemAudioSink::AUDIO_SINK_NONE;
 
+  uint32_t audioOutCycles = 0;
+
 private:
   static void timeoutEventCb(void *arg);
   static void taskControlEntry(void *argument);
@@ -76,6 +85,7 @@ private:
   void taskDataInLoop();
   void timeoutEvent();
   void initFilters();
+  bool isAudioCommandSupportedInCurrentMode(AudioChangeSrc acs);
 
   static void taskDataOutEntry(void *argument);
   static void taskDataInEntry(void *argument);
@@ -85,12 +95,14 @@ public:
 
   void init();
 
-  void startPlay();
-  void stopPlay();
-  void togglePlay();
-  void volUpDown(int32_t level);
-  void nextTrack();
-  void prevTrack();
+  void startPlay(AudioChangeSrc acs);
+  void stopPlay(AudioChangeSrc acs);
+  void togglePlay(AudioChangeSrc acs);
+  void volUpDown(int32_t level, AudioChangeSrc acs);
+  void setVolume(uint32_t level, AudioChangeSrc acs);
+  void setMute(bool mute, AudioChangeSrc acs);
+  void nextTrack(AudioChangeSrc acs);
+  void prevTrack(AudioChangeSrc acs);
   void reconfigureFilters();
 
   void notifyMoreDataNeeded();
@@ -98,6 +110,8 @@ public:
 
   SystemAudioSource selectAudioSource(SystemAudioSource audioSrc);
   SystemAudioSink selectAudioSink(SystemAudioSink audioSink);
+
+  uint32_t getAudioOutCycles(bool resetCounter);
 };
 
 }

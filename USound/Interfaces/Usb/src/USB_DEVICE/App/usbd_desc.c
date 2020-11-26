@@ -70,7 +70,7 @@
 #define USBD_PRODUCT_STRING_FS     "Helike"
 #define USBD_CONFIGURATION_STRING_FS     "AUDIO Config"
 #define USBD_INTERFACE_STRING_FS     "AUDIO Interface"
-#define USBD_HID_INTERFACE_STRING     "STM32 HID Interface"
+#define USBD_HID_INTERFACE_STRING     "Helike HID Interface"
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 

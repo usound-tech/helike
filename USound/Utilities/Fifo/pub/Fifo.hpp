@@ -96,6 +96,19 @@ public:
   }
 
   /**
+   * Advances the wr pointer and wraps it around when it gets past the fifo size.
+   * @param bufferSize
+   */
+  void incrementBufferWr(uint32_t bufferSize)
+  {
+    wr += bufferSize;
+    if (wr >= maxSamples)
+    {
+      wr = 0;
+    }
+  }
+
+  /**
    * Simply advances the rd pointer. Useful when discarding data.
    * It doesn't check the wr, so ensure that you are dropping less samples than the stored ones.
    * @param bufferSize
@@ -238,6 +251,24 @@ public:
     }
 
     return len;
+  }
+
+  /**
+   * Returns the memory address of the rd pointer
+   * @return
+   */
+  T* getReadBufferPtr()
+  {
+    return &data[rd];
+  }
+
+  /**
+   * Returns the memory address of the wr pointer
+   * @return
+   */
+  T* getWriteBufferPtr()
+  {
+    return &data[wr];
   }
 };
 

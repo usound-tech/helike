@@ -41,6 +41,7 @@
 #include "OAL/pub/Oal.hpp"
 #include "Controllers/ToneGen/pub/ToneGen.hpp"
 #include "Controllers/Audio/pub/AudioService.hpp"
+#include "Controllers/Telemetry/pub/Telemetry.hpp"
 #include "Interfaces/Dac/pub/Dac.hpp"
 #include "Interfaces/Amp/pub/Amp.hpp"
 #include "Interfaces/MclkPll/pub/MclkPll.hpp"
@@ -48,6 +49,9 @@
 #include "Interfaces/AudioLocal/pub/AudioLocalIn.hpp"
 #include "Controllers/Filesystem/pub/Filesystem.hpp"
 #include "gpio.h"
+#include "Interfaces/Usb/src/Core/Inc/usbd_def.h"
+
+extern USBD_HandleTypeDef hUsbDeviceFS;
 
 namespace System
 {
@@ -55,7 +59,8 @@ namespace System
 /**
  * System controller constructor
  */
-SystemController::SystemController()
+SystemController::SystemController() :
+    telemetry(nullptr)
 {
 
 }
@@ -115,6 +120,10 @@ void SystemController::initBuses()
   handle = systemConfiguration->getHandleForSystemBus(SystemBus::SAI_IN);
   saiConfiguration = systemConfiguration->getSaiInterfaceConfiguration(SaiInterface::IN);
   systemBuses[SystemBus::SAI_IN] = handle ? halFactory.getSaiIn(handle, saiConfiguration) : nullptr;
+
+  handle = systemConfiguration->getHandleForSystemBus(SystemBus::USB);
+  UsbConfiguration *usbConfiguration = systemConfiguration->getUsbConfiguration();
+  systemBuses[SystemBus::USB] = handle ? halFactory.getUsbIn(handle, usbConfiguration) : nullptr;
 }
 
 /**
@@ -244,6 +253,9 @@ void SystemController::initConsoles()
       systemConsoles[SystemConsole::CONSOLE_DEBUG]->init();
     }
   }
+
+  telemetry = new Controller::Telemetry(&hUsbDeviceFS);
+  telemetry->init();
 }
 
 /**
@@ -261,14 +273,22 @@ void SystemController::initAudioEngine()
 
   if (systemConfiguration->isAudioSourceAvailable(SystemAudioSource::AUDIO_SRC_SAI))
   {
-    systemAudioSources[SystemAudioSource::AUDIO_SRC_SAI] = new PeripheralInterface::AudioLocalIn();
+    systemAudioSources[SystemAudioSource::AUDIO_SRC_SAI] = new PeripheralInterface::AudioLocalIn(System::SystemBus::SAI_IN);
     systemAudioSources[SystemAudioSource::AUDIO_SRC_SAI]->init();
   }
 
+#if TONE_GEN_ENABLED == 1
   if (systemConfiguration->isAudioSourceAvailable(SystemAudioSource::AUDIO_SRC_GENERATOR))
   {
     systemAudioSources[SystemAudioSource::AUDIO_SRC_GENERATOR] = new Controller::ToneGen();
     systemAudioSources[SystemAudioSource::AUDIO_SRC_GENERATOR]->init();
+  }
+#endif
+
+  if (systemConfiguration->isAudioSourceAvailable(SystemAudioSource::AUDIO_SRC_USB))
+  {
+    systemAudioSources[SystemAudioSource::AUDIO_SRC_USB] = new PeripheralInterface::AudioLocalIn(System::SystemBus::USB);
+    systemAudioSources[SystemAudioSource::AUDIO_SRC_USB]->init();
   }
 
   if (systemConfiguration->isAudioSinkAvailable(SystemAudioSink::AUDIO_SINK_LOCAL))
@@ -284,6 +304,11 @@ void SystemController::initAudioEngine()
     case AudioMode::AM_MP3:
       globalServices->getAudioService()->selectAudioSink(SystemAudioSink::AUDIO_SINK_LOCAL);
       globalServices->getAudioService()->selectAudioSource(SystemAudioSource::AUDIO_SRC_FILE);
+      break;
+
+    case AudioMode::AM_USB:
+      globalServices->getAudioService()->selectAudioSink(SystemAudioSink::AUDIO_SINK_LOCAL);
+      globalServices->getAudioService()->selectAudioSource(SystemAudioSource::AUDIO_SRC_USB);
       break;
 
     case AudioMode::AM_I2S_SLAVE:

@@ -31,7 +31,7 @@
 //
 //====================================================================
 
-#include "FilterReader.hpp"
+#include "../../pub/FilterReader.hpp"
 #include <memory>
 #include "Controllers/Filesystem/pub/Filesystem.hpp"
 #include "Utilities/BsonReader/pub/BsonReader.hpp"
@@ -132,7 +132,7 @@ void FilterReader::loadFloat32(const uint8_t *data, const char *name, float32_t 
     }
     else if (arrayElem.type == BSON_TYPE_INT32)
     {
-      uint32_t tmp;
+      int32_t tmp;
       memcpy(&tmp, arrayElem.data, 4);
       *value = (float32_t) tmp;
     }
@@ -185,8 +185,8 @@ void FilterReader::extractConfig(const uint8_t *data)
     loadFloatArray(arrayElem.data, "xoverTweeterRight", filterConfig->xoverEqCoeffs[System::XoverEqCoeffcientType::RIGHT_TWEETER], MASTER_EQ_STAGES * 5);
   }
 
-  extractDrcConfig(arrayElem.data, "levelerDrcConfig", filterConfig->levelerDrcConfig);
-  extractDrcConfig(arrayElem.data, "limiterDrcConfig", filterConfig->limiterDrcConfig);
+  extractDrcConfig(data, "levelerDrcConfig", filterConfig->levelerDrcConfig);
+  extractDrcConfig(data, "limiterDrcConfig", filterConfig->limiterDrcConfig);
 
   loadBool(data, "masterEqEnabled", &filterConfig->masterEqEnabled);
   loadBool(data, "xoverEqEnabled", &filterConfig->xoverEqEnabled);
@@ -207,12 +207,12 @@ void FilterReader::extractDrcConfig(const uint8_t *data, const char *name, Syste
 
   if (bson.findField(data, name, arrayElem))
   {
-    loadFloat32(data, "attackDuration", &drcConfig.attackDuration);
-    loadFloat32(data, "releaseDuration", &drcConfig.releaseDuration);
-    loadFloat32(data, "compressionThresholdFullScaleDb", &drcConfig.compressionThresholdFullScaleDb);
-    loadFloat32(data, "compressionRatio", &drcConfig.compressionRatio);
-    loadFloat32(data, "sampleRateHz", &drcConfig.sampleRateHz);
-    loadFloat32(data, "postGain", &drcConfig.postGain);
+    loadFloat32(arrayElem.data, "attackDuration", &drcConfig.attackDuration);
+    loadFloat32(arrayElem.data, "releaseDuration", &drcConfig.releaseDuration);
+    loadFloat32(arrayElem.data, "compressionThresholdFullScaleDb", &drcConfig.compressionThresholdFullScaleDb);
+    loadFloat32(arrayElem.data, "compressionRatio", &drcConfig.compressionRatio);
+    loadFloat32(arrayElem.data, "sampleRateHz", &drcConfig.sampleRateHz);
+    loadFloat32(arrayElem.data, "postGain", &drcConfig.postGain);
   }
 }
 

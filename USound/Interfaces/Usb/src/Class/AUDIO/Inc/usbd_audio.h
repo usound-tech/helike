@@ -30,7 +30,7 @@
 #define __USB_AUDIO_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -51,7 +51,6 @@
  */
 #define AUDIO_OUT_EP                                  0x01
 #define AUDIO_SYNCH_EP                                0x81
-#define AUDIO_IN_EP                                   0x82
 #define USB_AUDIO_CONFIG_DESC_SIZ                     (109 + 1 + 42)
 #define AUDIO_INTERFACE_DESC_SIZE                     9
 #define USB_AUDIO_DESC_SIZ                            0x09
@@ -93,7 +92,6 @@
 #define AUDIO_REQ_RANGE                               0x02
 
 #define AUDIO_OUT_STREAMING_CTRL                      0x02
-#define AUDIO_IN_STREAMING_CTRL                       0x12
 
 #define AUDIO_OUT_ID                                  0x01
 #define AUDIO_IN_ID                                   0x10
@@ -112,7 +110,7 @@ typedef enum
   AUDIO_CMD_PLAY,
   AUDIO_CMD_STOP,
   AUDIO_CMD_NONE = 0xFF,
-} AUDIO_CMD_TypeDef;
+}AUDIO_CMD_TypeDef;
 
 typedef enum
 {
@@ -143,7 +141,6 @@ USBD_AUDIO_ControlTypeDef;
 typedef struct
 {
   __IO uint32_t alt_setting;
-  __IO uint32_t alt_mic_setting;
   uint32_t total_streams;
   void *pAudioStreamData;
   AUDIO_OffsetTypeDef offset;
@@ -164,7 +161,7 @@ typedef struct
   int8_t (*MuteCtl)(void *StreamState, uint32_t channel, uint8_t cmd);
   int8_t (*PeriodicTC)(uint8_t cmd);
   int8_t (*GetState)(void);
-} USBD_AUDIO_ItfTypeDef;
+}USBD_AUDIO_ItfTypeDef;
 /**
  * @}
  */

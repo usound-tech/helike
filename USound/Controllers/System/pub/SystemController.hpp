@@ -37,7 +37,11 @@
 #include "Interfaces/pub/SystemControl.hpp"
 #include "Controllers/Service/pub/Services.hpp"
 #include "Controllers/Console/pub/Console.hpp"
-#include <vector>
+
+namespace Controller
+{
+class Telemetry;
+}
 
 namespace System
 {
@@ -66,6 +70,9 @@ private:
 
   //!< This table holds the instances of all audio sources
   System::AudioSource<uint16_t> *systemAudioSources[AUDIO_SRC_COUNT];
+
+  //!< This object holds the pointer to the telemetry controller
+  Controller::Telemetry *telemetry;
 
   void initBuses();
   void initPeripherals();

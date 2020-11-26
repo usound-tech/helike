@@ -47,7 +47,19 @@ void FreeRtosOal::sendMessageToQueue(void *queue, const void *msg_ptr, uint32_t 
 uint32_t FreeRtosOal::popMessageFromQueue(void *queue, void *msg_ptr, uint32_t timeout)
 {
   return xQueueReceive((QueueHandle_t) queue, msg_ptr, timeout);
+}
 
+uint32_t FreeRtosOal::popMessageFromQueueFromISR(void *queue, void *msg_ptr, uint32_t timeout)
+{
+  BaseType_t xTaskWokenByReceive = pdFALSE;
+
+  xQueueReceiveFromISR((QueueHandle_t) queue, msg_ptr, &xTaskWokenByReceive);
+  if (xTaskWokenByReceive != pdFALSE)
+  {
+    taskYIELD();
+  }
+
+  return pdPASS;
 }
 
 /**

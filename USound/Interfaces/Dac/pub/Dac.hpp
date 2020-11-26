@@ -51,6 +51,7 @@ private:
   uint32_t deviceAddress;
   System::Bus *bus;
   System::Gpio *dacEnableGpio;
+  uint32_t gain;
 
   bool verifyVersion();
   void configure();

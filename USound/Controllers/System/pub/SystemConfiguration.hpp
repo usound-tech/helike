@@ -244,6 +244,22 @@ public:
 };
 
 /**
+ * Defines the system configuration attributes of a Usb bus
+ */
+struct UsbConfiguration
+{
+public:
+  uint32_t bufferingTime;       //!< Milliseconds of dma buffering
+  uint32_t frequency;
+
+  UsbConfiguration(uint32_t bufferingTime, uint32_t frequency) :
+      bufferingTime(bufferingTime),
+      frequency(frequency)
+  {
+  }
+};
+
+/**
  * This class manages the status and operational integrity of all the system peripherals.
  */
 class SystemConfiguration: public GlobalServiceConsumer
@@ -256,6 +272,7 @@ private:
   SaiConfiguration *saiConfig[3];
   MclkPllConfiguration *mclkConfig = nullptr;
   FilterConfiguration *filterConfig = nullptr;
+  UsbConfiguration *usbConfig = nullptr;
 
   uint32_t peripheralAvailability;
   uint32_t audioBufferingTime;        //!< Audio buffering time in milliseconds
@@ -285,6 +302,7 @@ public:
   GpioConfiguration* getGpioInterfaceConfiguration(GpioInterface interface) const;
   SaiConfiguration* getSaiInterfaceConfiguration(SaiInterface interface) const;
   MclkPllConfiguration* getMclkPllConfiguration() const;
+  UsbConfiguration* getUsbConfiguration() const;
 
   FilterConfiguration* getFilterConfiguration() const;
 

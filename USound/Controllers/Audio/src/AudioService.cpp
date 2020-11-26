@@ -48,6 +48,8 @@ enum AudioCommand
 {
   CMD_TOGGLE_PLAY,
   CMD_VOL_UP_DOWN,
+  CMD_SET_VOL,
+  CMD_SET_MUTE,
   CMD_SKIP_PREV,
   CMD_SKIP_NEXT,
   CMD_RECONF_FILTERS,
@@ -113,18 +115,21 @@ void AudioService::init()
 
   initFilters();
 
-  systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_NORTH)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
-      { this->volUpDown(evType == GpioEventType::GEVT_SINGLE ? 2 : 8);});
+  if ((audioMode == AudioMode::AM_MP3) || (audioMode == AudioMode::AM_I2S_SLAVE))
+  {
+    systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_NORTH)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
+        { this->volUpDown(evType == GpioEventType::GEVT_SINGLE ? 2 : 8, AudioChangeSrc::ACS_JOYSTICK);});
 
-  systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_SOUTH)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
-      { this->volUpDown(evType == GpioEventType::GEVT_SINGLE ? -2 : -8);});
+    systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_SOUTH)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
+        { this->volUpDown(evType == GpioEventType::GEVT_SINGLE ? -2 : -8, AudioChangeSrc::ACS_JOYSTICK);});
+  }
 
   auto oal = globalServices->getOal();
   controlMessageQueue = oal->createMessageQueue(8, sizeof(AudioServiceCmd));
   oal->startTask((char*) "audio_service", 1024, System::OalTaskPriority::PRIO_MEDIUM, AudioService::taskControlEntry, (void*) this);
   oal->startTask((char*) "audio_data_out", 1024, System::OalTaskPriority::PRIO_EXTREME, AudioService::taskDataOutEntry, (void*) this);
 
-  if (audioMode == AudioMode::AM_I2S_SLAVE)
+  if ((audioMode == AudioMode::AM_I2S_SLAVE) || (audioMode == AudioMode::AM_USB))
   {
     oal->startTask((char*) "audio_data_in", 1024, System::OalTaskPriority::PRIO_EXTREME, AudioService::taskDataInEntry, (void*) this);
     detectI2sStop = osTimerNew(AudioService::timeoutEventCb, osTimerOnce, this, nullptr);
@@ -132,10 +137,10 @@ void AudioService::init()
   else if (audioMode == AudioMode::AM_MP3)
   {
     systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_CENTER)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
-        { this->togglePlay();});
+        { this->togglePlay(AudioChangeSrc::ACS_JOYSTICK);});
 
     systemController->getGpio(System::GpioInterface::GPIO_JOYSTICK_EAST)->setEventHandler([this](uint32_t gpioLevel, GpioEventType evType)
-        { this->nextTrack();});
+        { this->nextTrack(AudioChangeSrc::ACS_JOYSTICK);});
   }
 }
 
@@ -151,21 +156,43 @@ void AudioService::initFilters()
   audioFilters->init();
 }
 
-void AudioService::startPlay()
+void AudioService::startPlay(AudioChangeSrc acs)
 {
   audioActive = false;
-  togglePlay();
+  togglePlay(acs);
 }
 
-void AudioService::stopPlay()
+void AudioService::stopPlay(AudioChangeSrc acs)
 {
   audioActive = true;
-  togglePlay();
+  togglePlay(acs);
 }
 
-void AudioService::togglePlay()
+/**
+ * Checks if the Audio Engine mode should accept an audio change command from the provided source.
+ * @param acs
+ * @return
+ */
+bool AudioService::isAudioCommandSupportedInCurrentMode(AudioChangeSrc acs)
 {
-  if (!audioSrc || !audioSink)
+  if (audioMode == AudioMode::AM_USB)
+  {
+    if (acs == AudioChangeSrc::ACS_JOYSTICK)
+    {
+      return false;
+    }
+  }
+  else if (acs == AudioChangeSrc::ACS_USB)
+  {
+    return false;
+  }
+
+  return true;
+}
+
+void AudioService::togglePlay(AudioChangeSrc acs)
+{
+  if (!audioSrc || !audioSink || !isAudioCommandSupportedInCurrentMode(acs))
   {
     return;
   }
@@ -174,14 +201,46 @@ void AudioService::togglePlay()
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
 }
 
-void AudioService::volUpDown(int32_t level)
+void AudioService::volUpDown(int32_t level, AudioChangeSrc acs)
 {
+  if (!isAudioCommandSupportedInCurrentMode(acs))
+  {
+    return;
+  }
+
   AudioServiceCmd cmd = { CMD_VOL_UP_DOWN, 0, (uint16_t) level };
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
 }
 
-void AudioService::nextTrack()
+void AudioService::setVolume(uint32_t level, AudioChangeSrc acs)
 {
+  if (!isAudioCommandSupportedInCurrentMode(acs))
+  {
+    return;
+  }
+
+  AudioServiceCmd cmd = { CMD_SET_VOL, 0, (uint16_t) level };
+  globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
+}
+
+void AudioService::setMute(bool mute, AudioChangeSrc acs)
+{
+  if (!isAudioCommandSupportedInCurrentMode(acs))
+  {
+    return;
+  }
+
+  AudioServiceCmd cmd = { CMD_SET_MUTE, 0, (uint16_t) mute };
+  globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
+}
+
+void AudioService::nextTrack(AudioChangeSrc acs)
+{
+  if (!isAudioCommandSupportedInCurrentMode(acs))
+  {
+    return;
+  }
+
   AudioServiceCmd cmd = { CMD_SKIP_NEXT, 0, 0 };
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
 }
@@ -192,7 +251,7 @@ void AudioService::reconfigureFilters()
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
 }
 
-void AudioService::prevTrack()
+void AudioService::prevTrack(AudioChangeSrc acs)
 {
 //NOT SUPPORTED
 }
@@ -210,7 +269,7 @@ void AudioService::taskControlLoop()
   //This call triggers the mp3 autorun when Helike starts
   if (audioMode == AudioMode::AM_MP3)
   {
-    startPlay();
+    startPlay(AudioChangeSrc::ACS_AUDIO_ENGINE);
   }
 
   while (1)
@@ -243,9 +302,18 @@ void AudioService::taskControlLoop()
         break;
 
       case CMD_VOL_UP_DOWN:
+        case CMD_SET_VOL:
         globalServices->getSystemStatus()->reportStatus(OperationalStatus::OPS_AUDIO_VOL);
 
-        audioGain += (int16_t) cmd.arg;
+        if (cmd.cmd == CMD_VOL_UP_DOWN)
+        {
+          audioGain += (int16_t) cmd.arg;
+        }
+        else
+        {
+          audioGain = (int16_t) cmd.arg;
+        }
+
         if (audioGain < 0)
         {
           audioGain = 0;
@@ -255,6 +323,11 @@ void AudioService::taskControlLoop()
           audioGain = 0xFF;
         }
         audioSink->setVolume((uint8_t) audioGain);
+        break;
+
+      case CMD_SET_MUTE:
+        globalServices->getSystemStatus()->reportStatus(OperationalStatus::OPS_AUDIO_VOL);
+        audioSink->mute((bool) cmd.arg);
         break;
 
       case CMD_SKIP_PREV:
@@ -276,6 +349,8 @@ void AudioService::taskControlLoop()
  */
 void AudioService::notifyMoreDataNeeded()
 {
+  audioOutCycles++;
+
   auto oal = globalServices->getOal();
   oal->sendTaskNotification(rxTaskHandle);
   rxTaskHandle = nullptr;
@@ -295,7 +370,7 @@ void AudioService::notifyMoreDataAvailable()
 
   if (!audioActive)
   {
-    startPlay();
+    startPlay(AudioChangeSrc::ACS_AUDIO_ENGINE);
   }
   else if (audioMode == AudioMode::AM_I2S_SLAVE)
   {
@@ -341,7 +416,7 @@ void AudioService::taskDataOutLoop()
       }
       else
       {
-        stopPlay();
+        stopPlay(AudioChangeSrc::ACS_AUDIO_ENGINE);
       }
     }
   }
@@ -404,7 +479,24 @@ SystemAudioSink AudioService::selectAudioSink(SystemAudioSink audioSinkInterface
  */
 void AudioService::timeoutEvent()
 {
-  stopPlay();
+  stopPlay(AudioChangeSrc::ACS_AUDIO_ENGINE);
+}
+
+/**
+ * Returns the audio out cycles
+ * @param resetCounter
+ * @return
+ */
+uint32_t AudioService::getAudioOutCycles(bool resetCounter)
+{
+  uint32_t samples = audioOutCycles;
+
+  if (resetCounter)
+  {
+    audioOutCycles = 0;
+  }
+
+  return samples;
 }
 
 }

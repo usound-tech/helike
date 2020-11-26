@@ -73,7 +73,7 @@ __ALIGN_BEGIN static uint8_t USBD_Composite_CfgDesc[] __ALIGN_END =
         USB_DESC_TYPE_CONFIGURATION, /* bDescriptorType */
         0x00, //LOBYTE(USB_AUDIO_CONFIG_DESC_SIZ),    /* wTotalLength  109 bytes*/
         0x00, //HIBYTE(USB_AUDIO_CONFIG_DESC_SIZ),
-        0x04, /* bNumInterfaces */
+        0x03, /* bNumInterfaces */
         0x01, /* bConfigurationValue */
         0x00, /* iConfiguration */
         0xC0, /* bmAttributes  BUS Powred*/
@@ -125,13 +125,13 @@ static uint8_t USBD_COMPOSITE_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
 {
   switch (LOBYTE(req->wIndex))
   {
-  case 0 ... 2:
-    USBD_AUDIO.Setup(pdev, req);
-  break;
+    case 0 ... 1:
+      USBD_AUDIO.Setup(pdev, req);
+      break;
 
-  case 3:
-    USBD_CUSTOM_HID.Setup(pdev, req);
-  break;
+    case 2:
+      USBD_CUSTOM_HID.Setup(pdev, req);
+      break;
   }
 
   return USBD_OK;
@@ -169,16 +169,15 @@ static uint8_t USBD_COMPOSITE_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
   switch (epnum | 0x80)
   {
-  case AUDIO_SYNCH_EP:
-    case AUDIO_IN_EP:
-    if (USBD_AUDIO.DataIn)
-      return USBD_AUDIO.DataIn(pdev, epnum);
-  break;
+    case AUDIO_SYNCH_EP:
+      if (USBD_AUDIO.DataIn)
+        return USBD_AUDIO.DataIn(pdev, epnum);
+      break;
 
-  case CUSTOM_HID_EPIN_ADDR:
-    if (USBD_CUSTOM_HID.DataIn)
-      return USBD_CUSTOM_HID.DataIn(pdev, epnum);
-  break;
+    case CUSTOM_HID_EPIN_ADDR:
+      if (USBD_CUSTOM_HID.DataIn)
+        return USBD_CUSTOM_HID.DataIn(pdev, epnum);
+      break;
   }
 
   return USBD_OK;
@@ -188,15 +187,15 @@ static uint8_t USBD_COMPOSITE_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
   switch (epnum)
   {
-  case AUDIO_OUT_EP:
-    if (USBD_AUDIO.DataOut)
-      return USBD_AUDIO.DataOut(pdev, epnum);
-  break;
+    case AUDIO_OUT_EP:
+      if (USBD_AUDIO.DataOut)
+        return USBD_AUDIO.DataOut(pdev, epnum);
+      break;
 
-  case CUSTOM_HID_EPOUT_ADDR:
-    if (USBD_CUSTOM_HID.DataOut)
-      return USBD_CUSTOM_HID.DataOut(pdev, epnum);
-  break;
+    case CUSTOM_HID_EPOUT_ADDR:
+      if (USBD_CUSTOM_HID.DataOut)
+        return USBD_CUSTOM_HID.DataOut(pdev, epnum);
+      break;
   }
 
   return USBD_OK;
@@ -231,15 +230,15 @@ static uint8_t USBD_COMPOSITE_IsoINIncomplete(USBD_HandleTypeDef *pdev, uint8_t 
 {
   switch (epnum)
   {
-  case 1 ... 2:
-    if (USBD_AUDIO.IsoINIncomplete)
-      return USBD_AUDIO.IsoINIncomplete(pdev, epnum);
-  break;
+    case 1 ... 2:
+      if (USBD_AUDIO.IsoINIncomplete)
+        return USBD_AUDIO.IsoINIncomplete(pdev, epnum);
+      break;
 
-  case CUSTOM_HID_EPOUT_ADDR:
-    if (USBD_CUSTOM_HID.IsoINIncomplete)
-      return USBD_CUSTOM_HID.IsoINIncomplete(pdev, epnum);
-  break;
+    case CUSTOM_HID_EPOUT_ADDR:
+      if (USBD_CUSTOM_HID.IsoINIncomplete)
+        return USBD_CUSTOM_HID.IsoINIncomplete(pdev, epnum);
+      break;
   }
 
   return USBD_OK;
@@ -249,15 +248,15 @@ static uint8_t USBD_COMPOSITE_IsoOutIncomplete(USBD_HandleTypeDef *pdev, uint8_t
 {
   switch (epnum)
   {
-  case AUDIO_OUT_EP:
-    if (USBD_AUDIO.IsoOUTIncomplete)
-      return USBD_AUDIO.IsoOUTIncomplete(pdev, epnum);
-  break;
+    case AUDIO_OUT_EP:
+      if (USBD_AUDIO.IsoOUTIncomplete)
+        return USBD_AUDIO.IsoOUTIncomplete(pdev, epnum);
+      break;
 
-  case CUSTOM_HID_EPOUT_ADDR:
-    if (USBD_CUSTOM_HID.IsoOUTIncomplete)
-      return USBD_CUSTOM_HID.IsoOUTIncomplete(pdev, epnum);
-  break;
+    case CUSTOM_HID_EPOUT_ADDR:
+      if (USBD_CUSTOM_HID.IsoOUTIncomplete)
+        return USBD_CUSTOM_HID.IsoOUTIncomplete(pdev, epnum);
+      break;
   }
   return USBD_OK;
 }

@@ -24,49 +24,38 @@
 //
 //====================================================================
 //
-//  Description: Operating system abstraction layer - FreeRtos port
-//  Filename: FreeRtosOal.hpp
+//  Description: The adapter between the USB HID and Telemetry
+//  Filename: TelemetryUsbInterface.cpp
 //  Author(s): Nik Kostaras (nk@socfpga.io)
 //  Date: 6-May-2020
 //
 //====================================================================
 
-#pragma once
+#include "../pub/Telemetry.hpp"
+#include "Interfaces/Usb/src/Class/CustomHID/Inc/usbd_customhid.h"
 
-#include "../pub/Oal.hpp"
-#include <cmsis_os2.h>
-
-namespace System
+namespace Controller
 {
 
 /**
- * This class wraps the FreeRtos OS operations
- * of the OS layer with the rest of the code.
+ * Enqueues a new Telemetry command
+ * @return
  */
-class FreeRtosOal: public Oal
+extern "C" void Telemetry_AddCommand(USBD_HandleTypeDef *pdev, uint8_t *dataIn)
 {
-public:
-  void* createMessageQueue(uint32_t msg_count, uint32_t msg_size) override;
-  void sendMessageToQueue(void *queue, const void *msg_ptr, uint32_t timeout) override;
-  uint32_t popMessageFromQueue(void *queue, void *msg_ptr, uint32_t timeout) override;
-  uint32_t popMessageFromQueueFromISR(void *queue, void *msg_ptr, uint32_t timeout) override;
+  Telemetry *telemetry = static_cast<Telemetry*>(pdev->hid_priv);
+  telemetry->addCommand(dataIn);
+}
 
-  OalTask* startTask(char *name, uint32_t stackSize, OalTaskPriority priority, void (*func)(void*), void *argument) override;
-  void delay(uint32_t ticks) override;
-
-  void sendTaskNotification(volatile void *rxTaskHandle) override;
-  void waitForTaskNotification(uint32_t timeout) override;
-};
-
-class FreeRtosTask: public OalTask
+/**
+ * Polls the Telemetry block for the completion event of a previous command
+ * @param pdev
+ * @param dataOut
+ */
+extern "C" void Telemetry_GetReply(USBD_HandleTypeDef *pdev, uint8_t *dataOut)
 {
-private:
-  osThreadId_t taskHandle;
-  osThreadAttr_t taskAttr;
-
-public:
-  FreeRtosTask(char *name, uint32_t stackSize, osPriority_t priority, osThreadFunc_t func, void *argument);
-};
-
+  Telemetry *telemetry = static_cast<Telemetry*>(pdev->hid_priv);
+  telemetry->getReply(dataOut);
+}
 
 }

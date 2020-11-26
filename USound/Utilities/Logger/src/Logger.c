@@ -4,6 +4,7 @@
 
 uint32_t log_level = LOG_TYPE_INFO;
 
+#if 0
 static const char *level_names[] = {
     "TRACE: ",
     "DEBUG: ",
@@ -11,6 +12,7 @@ static const char *level_names[] = {
     "WARN: ",
     "ERR: "
 };
+#endif
 
 void LOG_Msg(LOG_LEVEL level, const char *msg, ...)
 {

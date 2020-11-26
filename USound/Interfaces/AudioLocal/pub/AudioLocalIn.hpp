@@ -57,6 +57,7 @@ private:
   uint16_t *silenceSamples = nullptr;
   uint32_t wr = 0;
   uint32_t rd = 0;
+  System::SystemBus systemBus;
 
 private:
   void enable();
@@ -65,7 +66,7 @@ private:
   uint32_t getAvailableSampleCount();
 
 public:
-  AudioLocalIn();
+  AudioLocalIn(System::SystemBus systemBus);
   virtual ~AudioLocalIn();
 
   void init() override;

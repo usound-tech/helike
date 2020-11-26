@@ -40,6 +40,7 @@
 #include "stm32h7xx_hal.h"
 #include "Controllers/Service/pub/Services.hpp"
 #include "Utilities/Fifo/pub/Fifo.hpp"
+#include "Interfaces/Usb/src/Core/Inc/usbd_def.h"
 #include <functional>
 
 namespace System
@@ -220,5 +221,34 @@ public:
 
   void dmaDone(SaiDmaType dmaType);
 };
+
+/**
+ * This class wraps the FreeRtos HAL Usb In operations.
+ */
+class FreeRtosUsbIn: public Bus, public GlobalServiceConsumer
+{
+private:
+  Fifo<int16_t> usbInFifo;
+  UsbConfiguration *usbConfiguration;
+  int16_t *usbBuffer = nullptr;
+  USBD_HandleTypeDef *handle;
+  uint32_t readCyclesCompleted = 0;
+
+public:
+  FreeRtosUsbIn(void *handle, UsbConfiguration *usbConfiguration);
+
+  void init() override;
+  Status read(uint32_t deviceAddress, uint16_t registerAddress, uint16_t memAddSize, uint8_t *pData, uint16_t *size, uint32_t timeout) override;
+  Status write(uint32_t deviceAddress, uint16_t registerAddress, uint16_t memAddSize, uint8_t *pData, uint16_t size, uint32_t timeout) override;
+
+  Status enable() override;
+  Status disable() override;
+
+  void rxDone(int16_t *usb_buffer, uint32_t rxBytes);
+  uint32_t getReadCycles(bool reset);
+  void setVolume(uint32_t level);
+  void setMute(bool mute);
+};
+
 
 }

@@ -265,6 +265,8 @@ typedef struct _USBD_HandleTypeDef
   void *pAudioUserData;
   void *pHidUserData;
   void *pData;
+  void *priv;
+  void *hid_priv;
 } USBD_HandleTypeDef;
 
 /**

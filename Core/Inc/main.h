@@ -50,9 +50,9 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define MAJOR_REV             2
-#define MINOR_REV             2
-#define SUB_MINOR_REV         4
+#define MAJOR_REV             3
+#define MINOR_REV             1
+#define SUB_MINOR_REV         3
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

@@ -44,6 +44,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define PREBUFFERING 150
+#define LONG_CHUNK   50   // 200ms of audio
+
+static uint8_t mediaPlayerBuffer[128 * 1024]__attribute__((section("._ram2"))) __attribute__ ((aligned (32)));
 
 namespace Controller
 {
@@ -85,7 +89,8 @@ AudioPlayer::AudioPlayer() :
     audioSsamples(nullptr),
     audioState(AudioPlayerState::AP_UNCONFIGURED),
     audioFile(nullptr),
-    activeReader(nullptr)
+    activeReader(nullptr),
+    samplesFifo(nullptr, 0)
 {
 
 }
@@ -96,7 +101,11 @@ AudioPlayer::AudioPlayer() :
 void AudioPlayer::init()
 {
   uint32_t bufferTime = globalServices->getSystemConfiguration()->getBufferingTIme();
-  audioSsamples = new int16_t[bufferTime * 2 * 48];
+
+  chunkSize = bufferTime * 2 * 48;
+  audioBufferSize = PREBUFFERING * chunkSize;
+  audioSsamples = (int16_t*) mediaPlayerBuffer;
+  samplesFifo.reset(audioSsamples, audioBufferSize);
 
   silenceAudioSamples();
 
@@ -111,7 +120,7 @@ void AudioPlayer::init()
   audioFile = globalServices->getFilesystem()->getFile();
 
   auto oal = globalServices->getOal();
-  controlMessageQueue = oal->createMessageQueue(4, sizeof(Mp3PlayerCmd));
+  controlMessageQueue = oal->createMessageQueue(8, sizeof(Mp3PlayerCmd));
   oal->startTask((char*) "audioPlayer", 1024, System::OalTaskPriority::PRIO_MEDIUM, AudioPlayer::taskEntry, (void*) this);
 }
 
@@ -127,7 +136,14 @@ uint16_t* AudioPlayer::getData(uint32_t length)
     return nullptr;
   }
 
-  return (uint16_t*) audioSsamples;
+  uint16_t *data = (uint16_t*) samplesFifo.getReadBufferPtr();
+
+  if (audioState == AudioPlayerState::AP_PLAYING)
+  {
+    samplesFifo.consumeBuffer(chunkSize);
+  }
+
+  return data;
 }
 
 /**
@@ -167,8 +183,7 @@ void AudioPlayer::notifyDataAvailable()
  */
 void AudioPlayer::silenceAudioSamples()
 {
-  uint32_t bufferTime = globalServices->getSystemConfiguration()->getBufferingTIme();
-  memset(audioSsamples, 0, bufferTime * 2 * 48 * sizeof(int16_t));
+  memset(audioSsamples, 0, audioBufferSize * sizeof(int16_t));
 }
 
 /**
@@ -177,7 +192,7 @@ void AudioPlayer::silenceAudioSamples()
  */
 bool AudioPlayer::skipNext()
 {
-  silenceAudioSamples();
+  //silenceAudioSamples();
 
   Mp3PlayerCmd cmd = { AP_CMD_NEXT, 0, 0 };
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
@@ -269,6 +284,12 @@ bool AudioPlayer::playFile(bool advanceNext)
   }
 
   activeReader = reader;
+
+  // Prime the audio fifo
+  consumedData(chunkSize);
+  consumedData(chunkSize);
+  consumedData(chunkSize);
+
   return true;
 }
 
@@ -282,9 +303,12 @@ void AudioPlayer::play()
     return;
   }
 
-  if (!playFile(false))
+  if (audioState == AudioPlayerState::AP_IDLE)
   {
-    return;
+    if (!playFile(false))
+    {
+      return;
+    }
   }
 
   globalServices->getSystemStatus()->reportStatus(System::OperationalStatus::OPS_AUDIO_PLAYBACK);
@@ -304,10 +328,10 @@ void AudioPlayer::pause()
 
   globalServices->getSystemStatus()->reportStatus(System::OperationalStatus::OPS_AUDIO_PAUSE);
 
-  audioFile->close();
-  audioState = AudioPlayerState::AP_IDLE;
+  //audioFile->close();
+  audioState = AudioPlayerState::AP_PAUSED;
+  silenceAudioSamples();
 }
-
 
 void AudioPlayer::taskLoop()
 {
@@ -333,20 +357,32 @@ void AudioPlayer::taskLoop()
         pause();
         break;
 
-      case AP_CMD_DECODE_MORE:
-        if (activeReader)
+      case AP_CMD_DECODE_MORE: {
+        if (audioState != AudioPlayerState::AP_PLAYING)
         {
-          if (!activeReader->loadNextChunk((uint8_t*) audioSsamples, (uint32_t) cmd.arg))
+          break;
+        }
+
+        uint32_t readSampleCount = LONG_CHUNK * (uint32_t) cmd.arg;
+        if (samplesFifo.getCapacity() >= readSampleCount)
+        {
+          uint16_t *dstPtr = (uint16_t*) samplesFifo.getWriteBufferPtr();
+          uint32_t allSamplesRead = activeReader->loadNextChunk((uint8_t*) dstPtr, readSampleCount);
+
+          samplesFifo.incrementBufferWr(readSampleCount);
+
+          if (!allSamplesRead)
           {
             skipNext();
+            break;
           }
         }
 
         break;
+      }
 
       case AP_CMD_NEXT:
         activeReader = nullptr;
-        silenceAudioSamples();
 
         if (!playFile(true))
         {

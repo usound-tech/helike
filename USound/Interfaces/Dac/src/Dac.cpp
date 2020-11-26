@@ -66,7 +66,8 @@ Dac::Dac(System::DacInterface dacInterface) :
     dacInterface(dacInterface),
     deviceAddress(0),
     bus(nullptr),
-    dacEnableGpio(nullptr)
+    dacEnableGpio(nullptr),
+    gain(0xF0)
 {
   state = System::State::UNINITIALISED;
 }
@@ -163,7 +164,7 @@ void Dac::configure()
 {
   mute(true);
 
-  setVolume(0xF0);
+  setVolume(gain);
 
   configureAudioRate();
 
@@ -218,6 +219,7 @@ void Dac::mute(bool enable)
 void Dac::setVolume(uint8_t vol)
 {
   uint8_t volArray[] = { vol, vol };
+  gain = vol;
 
   auto status = bus->write(deviceAddress, REG_L1CH_ATT, I2C_MEMADD_SIZE_8BIT, volArray, 2, 100);
   if (status != System::Status::STATUS_OK)

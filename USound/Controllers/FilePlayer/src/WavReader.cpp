@@ -126,7 +126,15 @@ bool WavReader::loadNextChunk(uint8_t *buffer, uint32_t sampleCount)
 
   sampleCount *= sizeof(int16_t);
 
-  return wavFile->read(buffer, sampleCount) == sampleCount;
+  uint32_t bytesRead = wavFile->read(buffer, sampleCount);
+
+  if (bytesRead != sampleCount)
+  {
+    memset(&buffer[bytesRead], 0, (sampleCount - bytesRead));
+    return 0;
+  }
+
+  return 1;
 }
 
 uint32_t WavReader::getFrequency()

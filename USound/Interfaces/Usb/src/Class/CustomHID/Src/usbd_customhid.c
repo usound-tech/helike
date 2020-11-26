@@ -52,69 +52,14 @@
 #include "../../../USB_DEVICE/App/usbd_desc.h"
 #include "../../../Core/Inc/usbd_ctlreq.h"
 
-//#include "Telemetry.h"
-
-
-/** @addtogroup STM32_USB_DEVICE_LIBRARY
- * @{
- */
-
-
-/** @defgroup USBD_CUSTOM_HID
- * @brief usbd core module
- * @{
- */
-
-/** @defgroup USBD_CUSTOM_HID_Private_TypesDefinitions
- * @{
- */
-/**
- * @}
- */
-
-
-/** @defgroup USBD_CUSTOM_HID_Private_Defines
- * @{
- */
-
-/**
- * @}
- */
-
-
-/** @defgroup USBD_CUSTOM_HID_Private_Macros
- * @{
- */
-/**
- * @}
- */
-/** @defgroup USBD_CUSTOM_HID_Private_FunctionPrototypes
- * @{
- */
-
-
 static uint8_t USBD_CUSTOM_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
-
 static uint8_t USBD_CUSTOM_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
-
 static uint8_t USBD_CUSTOM_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-
 static uint8_t* USBD_CUSTOM_HID_GetCfgDesc(uint16_t *length);
-
 static uint8_t USBD_CUSTOM_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum);
-
 static uint8_t USBD_CUSTOM_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum);
 static uint8_t USBD_CUSTOM_HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
-
 static uint8_t USBD_CUSTOM_HID_SOF(USBD_HandleTypeDef *pdev);
-
-/**
- * @}
- */
-
-/** @defgroup USBD_CUSTOM_HID_Private_Variables
- * @{
- */
 
 USBD_ClassTypeDef USBD_CUSTOM_HID =
     {
@@ -134,13 +79,50 @@ USBD_ClassTypeDef USBD_CUSTOM_HID =
         NULL,
     };
 
+__ALIGN_BEGIN uint8_t CustomHID_ReportDesc[] __ALIGN_END = {
+    0x06, 0xFF, 0x00, /* USAGE_PAGE (Vendor Page: 0xFF00) */
+    0x09, 0x01, /* USAGE (Demo Kit) */
+    0xa1, 0x01, /* COLLECTION (Application) */
+    /* 6 */
+
+    /* REPORT-IN */
+    0x85, 0x01, /* REPORT_ID (1) */
+    0x09, 0x01, /* USAGE (REPORT IN) */
+    0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+    0x25, 0xFF, /* LOGICAL_MAXIMUM (255) */
+    0x75, 0x08, /* REPORT_SIZE (8 bits) */
+    0x95, 31, /* REPORT_COUNT (31) */
+    0xB1, 0x82, /* FEATURE (Data,Var,Abs,Vol) */
+
+    0x85, 0x01, /* REPORT_ID (1) */
+    0x09, 0x01, /* USAGE (REPORT IN) */
+    0x91, 0x82, /* OUTPUT (Data,Var,Abs,Vol) */
+    /* 26 */
+
+    /* REPORT-OUT */
+    0x85, 0x02, /* REPORT_ID (2) */
+    0x09, 0x02, /* USAGE (REPORT OUT) */
+    0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+    0x25, 0xFF, /* LOGICAL_MAXIMUM (255) */
+    0x75, 0x08, /* REPORT_SIZE (8) */
+    0x95, 31, /* REPORT_COUNT (31) */
+    0xb1, 0x82, /* FEATURE (Data,Var,Abs,Vol) */
+
+    0x09, 0x02, /* USAGE (REPORT OUT) */
+    0x75, 0x08, /* REPORT_SIZE (8) */
+    0x95, 31, /* REPORT_COUNT (31) */
+    0x81, 0x82, /* INPUT (Data,Var,Abs,Vol) */
+
+    0xc0 /* END_COLLECTION */
+};
+
 /* USB CUSTOM_HID device Configuration Descriptor */
 __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[] __ALIGN_END =
     {
         /* HID class Interface Association Descriptor */
         0x08,                       // bLength: Interface Descriptor size
         USB_DESC_TYPE_IAD,          // bDescriptorType: IAD
-        0x03,                       // bFirstInterface - starting of interface
+        0x02,                       // bFirstInterface - starting of interface
         0x01,                       // bInterfaceCount - interfaces under this IAD class
         0x03,                       // bFunctionClass: HID
         0x00,                       // bFunctionSubClass
@@ -151,7 +133,7 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[] __ALIGN_END =
         /* CUSTOM HID interface Descriptor */
         0x09,                       // bLength: Interface Descriptor size
         USB_DESC_TYPE_INTERFACE,    // bDescriptorType: Interface descriptor type
-        0x03,                       // bInterfaceNumber: Number of Interface
+        0x02,                       // bInterfaceNumber: Number of Interface
         0x00,                       // bAlternateSetting: Alternate setting
         0x01,                       // bNumEndpoints
         0x03,                       // bInterfaceClass: CUSTOM_HID
@@ -168,7 +150,7 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[] __ALIGN_END =
         0x00,                       // bCountryCode: Hardware target country
         0x01,                       // bNumDescriptors: Number of CUSTOM_HID class descriptors to follow
         0x22,                       // bDescriptorType
-        0x00,                       // wItemLength: Total length of Report descriptor
+        sizeof(CustomHID_ReportDesc),  // wItemLength: Total length of Report descriptor
         0x00,
         /* 09 bytes */
 
@@ -193,16 +175,8 @@ __ALIGN_BEGIN static uint8_t USBD_CUSTOM_HID_CfgDesc[] __ALIGN_END =
     /* 07 bytes */
     };
 
-/**
- * @}
- */
-
-/** @defgroup USBD_CUSTOM_HID_Private_Functions
- * @{
- */
-
-static volatile uint32_t SOF_num = 0;
-static volatile uint32_t enableImuHid = -1;
+extern void Telemetry_AddCommand(USBD_HandleTypeDef *pdev, uint8_t *dataIn);
+extern void Telemetry_GetReply(USBD_HandleTypeDef *pdev, uint8_t *dataOut);
 
 /**
  * @brief  USBD_CUSTOM_HID_Init
@@ -216,13 +190,8 @@ static uint8_t USBD_CUSTOM_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   uint8_t ret = 0;
   USBD_CUSTOM_HID_HandleTypeDef *hhid;
 
-  //USBD_LL_OpenEP(pdev, CUSTOM_HID_EPIN_ADDR, USBD_EP_TYPE_INTR, CUSTOM_HID_EPIN_SIZE);
-  //USBD_LL_FlushEP(pdev, CUSTOM_HID_EPIN_ADDR);
-
   USBD_LL_OpenEP(pdev, CUSTOM_HID_EPOUT_ADDR, USBD_EP_TYPE_BULK, CUSTOM_HID_EPOUT_SIZE);
   USBD_LL_FlushEP(pdev, CUSTOM_HID_EPOUT_ADDR);
-
-  enableImuHid = 250;
 
   pdev->pHidClassData = USBD_malloc(sizeof(USBD_CUSTOM_HID_HandleTypeDef));
   if (pdev->pHidClassData == NULL)
@@ -250,8 +219,6 @@ static uint8_t USBD_CUSTOM_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
  */
 static uint8_t USBD_CUSTOM_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-  //USBD_LL_CloseEP(pdev, CUSTOM_HID_EPIN_ADDR);
-
   USBD_LL_CloseEP(pdev, CUSTOM_HID_EPOUT_ADDR);
 
   /* Free allocated memory */
@@ -278,76 +245,72 @@ static uint8_t USBD_CUSTOM_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqType
 
   switch (req->bmRequest & USB_REQ_TYPE_MASK)
   {
-  case USB_REQ_TYPE_CLASS:
-    switch (req->bRequest)
-    {
-    case CUSTOM_HID_REQ_SET_PROTOCOL:
-      hhid->Protocol = (uint8_t) (req->wValue);
-    break;
-
-    case CUSTOM_HID_REQ_GET_PROTOCOL:
-      USBD_CtlSendData(pdev, (uint8_t*) &hhid->Protocol, 1);
-    break;
-
-    case CUSTOM_HID_REQ_SET_IDLE:
-      hhid->IdleState = (uint8_t) (req->wValue >> 8);
-
-      USBD_LL_FlushEP(pdev, CUSTOM_HID_EPIN_ADDR);
-    break;
-
-    case CUSTOM_HID_REQ_GET_IDLE:
-      USBD_CtlSendData(pdev, (uint8_t*) &hhid->IdleState, 1);
-    break;
-
-    case CUSTOM_HID_REQ_SET_REPORT:
-      hhid->IsReportAvailable = 1;
-      USBD_CtlPrepareRx(pdev, hhid->Report_buf, (uint8_t) (req->wLength));
-    break;
-
-    case CUSTOM_HID_REQ_GET_REPORT:
+    case USB_REQ_TYPE_CLASS:
+      switch (req->bRequest)
       {
-      //TODO: Reinstate hid path
-      //HID_CTL_GetReply(hhid->Report_buf);
-      len = MIN(USBD_CUSTOMHID_REPORT_BUF_SIZE, req->wLength);
-      USBD_CtlSendData(pdev, (uint8_t*) &hhid->Report_buf, len);
-    }
-    break;
+        case CUSTOM_HID_REQ_SET_PROTOCOL:
+          hhid->Protocol = (uint8_t) (req->wValue);
+          break;
 
-    default:
-      USBD_CtlError(pdev, req);
-      return USBD_FAIL;
-    }
-  break;
+        case CUSTOM_HID_REQ_GET_PROTOCOL:
+          USBD_CtlSendData(pdev, (uint8_t*) &hhid->Protocol, 1);
+          break;
 
-  case USB_REQ_TYPE_STANDARD:
-    switch (req->bRequest)
-    {
-    case USB_REQ_GET_DESCRIPTOR:
-      if (req->wValue >> 8 == CUSTOM_HID_REPORT_DESC)
-      {
-        uint32_t desc_len;
+        case CUSTOM_HID_REQ_SET_IDLE:
+          hhid->IdleState = (uint8_t) (req->wValue >> 8);
 
-        //TODO: Reinstate path
-        //pbuf = HID_CTL_GetDescriptor(&desc_len);
-        len = MIN(desc_len, req->wLength);
+          USBD_LL_FlushEP(pdev, CUSTOM_HID_EPIN_ADDR);
+          break;
+
+        case CUSTOM_HID_REQ_GET_IDLE:
+          USBD_CtlSendData(pdev, (uint8_t*) &hhid->IdleState, 1);
+          break;
+
+        case CUSTOM_HID_REQ_SET_REPORT:
+          hhid->IsReportAvailable = 1;
+          USBD_CtlPrepareRx(pdev, hhid->Report_buf, (uint8_t) (req->wLength));
+          break;
+
+        case CUSTOM_HID_REQ_GET_REPORT:
+          Telemetry_GetReply(pdev, hhid->Report_buf);
+          len = MIN(USBD_CUSTOMHID_REPORT_BUF_SIZE, req->wLength);
+          USBD_CtlSendData(pdev, (uint8_t*) &hhid->Report_buf, len);
+          break;
+
+        default:
+          USBD_CtlError(pdev, req);
+          return USBD_FAIL;
       }
-      else if (req->wValue >> 8 == CUSTOM_HID_DESCRIPTOR_TYPE)
+      break;
+
+    case USB_REQ_TYPE_STANDARD:
+      switch (req->bRequest)
       {
-        pbuf = USBD_CUSTOM_HID_CfgDesc + 17;
-        len = MIN(USB_CUSTOM_HID_DESC_SIZ, req->wLength);
+        case USB_REQ_GET_DESCRIPTOR:
+          if (req->wValue >> 8 == CUSTOM_HID_REPORT_DESC)
+          {
+            uint32_t desc_len = sizeof(CustomHID_ReportDesc);
+
+            pbuf = CustomHID_ReportDesc;
+            len = MIN(desc_len, req->wLength);
+          }
+          else if (req->wValue >> 8 == CUSTOM_HID_DESCRIPTOR_TYPE)
+          {
+            pbuf = USBD_CUSTOM_HID_CfgDesc + 17;
+            len = MIN(USB_CUSTOM_HID_DESC_SIZ, req->wLength);
+          }
+
+          USBD_CtlSendData(pdev, pbuf, len);
+          break;
+
+        case USB_REQ_GET_INTERFACE:
+          USBD_CtlSendData(pdev, (uint8_t*) &hhid->AltSetting, 1);
+          break;
+
+        case USB_REQ_SET_INTERFACE:
+          hhid->AltSetting = (uint8_t) (req->wValue);
+          break;
       }
-
-      USBD_CtlSendData(pdev, pbuf, len);
-    break;
-
-    case USB_REQ_GET_INTERFACE:
-      USBD_CtlSendData(pdev, (uint8_t*) &hhid->AltSetting, 1);
-    break;
-
-    case USB_REQ_SET_INTERFACE:
-      hhid->AltSetting = (uint8_t) (req->wValue);
-    break;
-    }
   }
   return USBD_OK;
 }
@@ -383,11 +346,6 @@ uint8_t USBD_CUSTOM_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, ui
  */
 static uint8_t* USBD_CUSTOM_HID_GetCfgDesc(uint16_t *length)
 {
-  uint32_t desc_len;
-  //TODO: Reinstate path
-  //HID_CTL_GetDescriptor(&desc_len);
-
-  USBD_CUSTOM_HID_CfgDesc[24] = desc_len;
   *length = sizeof(USBD_CUSTOM_HID_CfgDesc);
   return USBD_CUSTOM_HID_CfgDesc;
 }
@@ -401,11 +359,6 @@ static uint8_t* USBD_CUSTOM_HID_GetCfgDesc(uint16_t *length)
  */
 static uint8_t USBD_CUSTOM_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  if (epnum == 3)
-  {
-    SOF_num = 0;
-  }
-
   /* Ensure that the FIFO is empty before a new transfer, this condition could
    be caused by  a new transfer before the end of the previous transfer */
   ((USBD_CUSTOM_HID_HandleTypeDef*) pdev->pHidClassData)->state = CUSTOM_HID_IDLE;
@@ -424,9 +377,7 @@ static uint8_t USBD_CUSTOM_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
   USBD_CUSTOM_HID_HandleTypeDef *hhid = (USBD_CUSTOM_HID_HandleTypeDef*) pdev->pHidClassData;
 
-  uint8_t *data_in = hhid->Report_buf;
-  //TODO: Reinstate path
-  //HID_CTL_EnqueCmd(HID_CMD(data_in[1]), data_in, 0);
+  Telemetry_AddCommand(pdev, hhid->Report_buf);
 
   USBD_LL_PrepareReceive(pdev, CUSTOM_HID_EPOUT_ADDR, hhid->Report_buf, USBD_CUSTOMHID_REPORT_BUF_SIZE);
 
@@ -441,28 +392,6 @@ static uint8_t USBD_CUSTOM_HID_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
  */
 static uint8_t USBD_CUSTOM_HID_SOF(USBD_HandleTypeDef *pdev)
 {
-#if 0
-  SOF_num++;
-  if (SOF_num == 31)
-  {
-    volatile uint32_t *report = (volatile uint32_t*) IMU_REPORTER_GetActiveReport();
-    report[0] = 0x02;
-
-    //BSP_IMU_Get_Angle((volatile IMU_ANGLE*)&report[1]);
-
-    if (!enableImuHid) {
-      //USBD_SendData(pdev, CUSTOM_HID_EPIN_ADDR, (uint8_t*) report, 32);
-    }
-    else if (enableImuHid > 0) {
-      enableImuHid--;
-    }
-  }
-  else if (SOF_num == 32)
-  {
-    SOF_num = 0;
-  }
-#endif
-
   return 0;
 }
 
@@ -477,10 +406,7 @@ uint8_t USBD_CUSTOM_HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
   if (hhid->IsReportAvailable == 1)
   {
-    uint8_t *data_in = hhid->Report_buf;
-    //TODO: Reinstate code
-    //HID_CTL_EnqueCmd(HID_CMD(data_in[1]), data_in, 0);
-
+    Telemetry_AddCommand(pdev, hhid->Report_buf);
     hhid->IsReportAvailable = 0;
   }
 
@@ -506,18 +432,3 @@ uint8_t USBD_CUSTOM_HID_RegisterInterface(USBD_HandleTypeDef *pdev, USBD_CUSTOM_
 
   return ret;
 }
-/**
- * @}
- */
-
-
-/**
- * @}
- */
-
-
-/**
- * @}
- */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

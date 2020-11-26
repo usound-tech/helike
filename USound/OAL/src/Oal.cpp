@@ -114,4 +114,15 @@ Bus* HalFactory::getSaiIn(void *handle, SaiConfiguration *saiConfig)
   return sai;
 }
 
+/**
+ * Returns an instance of the FreeRtos Usb wrapper
+ */
+Bus* HalFactory::getUsbIn(void *handle, UsbConfiguration *usbConfig)
+{
+  FreeRtosUsbIn *usb = new FreeRtosUsbIn(handle, usbConfig);
+  usb->init();
+
+  return usb;
+}
+
 }

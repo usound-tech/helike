@@ -48,8 +48,9 @@
 namespace PeripheralInterface
 {
 
-AudioLocalIn::AudioLocalIn() :
-    frequency(48000)
+AudioLocalIn::AudioLocalIn(System::SystemBus systemBus) :
+    frequency(48000),
+    systemBus(systemBus)
 {
 
 }
@@ -81,7 +82,7 @@ void AudioLocalIn::deinit()
 {
   auto systemController = globalServices->getSystemController();
 
-  auto saiInBus = systemController->getBus(System::SystemBus::SAI_IN);
+  auto saiInBus = systemController->getBus(systemBus);
   saiInBus->disable();
 }
 
@@ -120,7 +121,7 @@ void AudioLocalIn::enable()
   auto systemController = globalServices->getSystemController();
   frequency = globalServices->getSystemConfiguration()->getSaiInterfaceConfiguration(System::SaiInterface::TWEETER)->frequency;
 
-  auto saiInBus = systemController->getBus(System::SystemBus::SAI_IN);
+  auto saiInBus = systemController->getBus(systemBus);
   saiInBus->enable();
 }
 
@@ -172,13 +173,13 @@ void AudioLocalIn::consumedData(uint32_t length)
 void AudioLocalIn::notifyDataAvailable()
 {
   auto systemController = globalServices->getSystemController();
-  System::Bus *bus = systemController->getBus(System::SystemBus::SAI_IN);
+  System::Bus *bus = systemController->getBus(systemBus);
 
   // The DMA actually runs twice as fast as the rest of the audio, so it has half the data to send
-  uint16_t samplesToRead = chunkSizePerTransfer / 2;
+  uint16_t samplesToRead = chunkSizePerTransfer / (systemBus == System::SystemBus::USB ? 4 : 2);
   bus->read(0, 0, 0, (uint8_t*) &rxSamples[wr], &samplesToRead, 0);
 
-  wr += (chunkSizePerTransfer / 2);
+  wr += samplesToRead;
   if (wr >= audioBufferLength)
   {
     wr = 0;

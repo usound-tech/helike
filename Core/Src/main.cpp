@@ -49,7 +49,7 @@
 #include "Controllers/System/pub/SystemConfiguration.hpp"
 #include "Controllers/Audio/pub/AudioService.hpp"
 #include "Controllers/System/pub/SystemStatus.hpp"
-
+#include "Interfaces/Usb/src/USB_DEVICE/App/usb_device.h"
 
 /* USER CODE END Includes */
 
@@ -114,6 +114,10 @@ void MPU_Config(void)
   MPU_InitStruct.Number = MPU_REGION_NUMBER2;
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
+  MPU_InitStruct.BaseAddress = 0x30000000;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_256KB;
+  MPU_InitStruct.Number = MPU_REGION_NUMBER3;
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
   /* Enable the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
@@ -192,7 +196,7 @@ int main(void)
     MX_FATFS_Init();
     MX_I2C2_Init();
     MX_I2C4_Init();
-    MX_USB_OTG_FS_PCD_Init();
+    MX_USB_DEVICE_Init();
 
     /* USER CODE BEGIN 2 */
 

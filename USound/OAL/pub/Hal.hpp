@@ -42,6 +42,7 @@ namespace System
 {
 struct GpioConfiguration;
 struct SaiConfiguration;
+struct UsbConfiguration;
 
 /**
  * Helper factory class to return the Hal instance
@@ -53,6 +54,7 @@ public:
   Bus* getUart(void *handle, UartInterface uartInterface);
   Bus* getSaiOut(void *handle, SaiConfiguration *saiConfig);
   Bus* getSaiIn(void *handle, SaiConfiguration *saiConfig);
+  Bus* getUsbIn(void *handle, UsbConfiguration *usbConfig);
   Gpio* getGpio(GpioConfiguration *gpioConfig);
   Gpio* getLongPressGpio(GpioConfiguration *gpioConfig);
 };
