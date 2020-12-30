@@ -224,9 +224,7 @@ void AudioLocalOut::setVolume(uint8_t vol)
   auto dacWoofer = (PeripheralInterface::Dac*) systemController->getPeripheral(System::SystemPeripheral::DAC_WOOFER);
 
   dacTweeter->setVolume(vol);
-
-  uint32_t scaledVolume = ((uint32_t) vol * 0xFA) / 0xFF;
-  dacWoofer->setVolume((uint8_t) scaledVolume);
+  dacWoofer->setVolume(vol);
 }
 
 }

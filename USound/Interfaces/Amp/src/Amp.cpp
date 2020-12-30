@@ -153,8 +153,16 @@ bool Amp::verifyVersion()
  */
 void Amp::configure()
 {
-  setAgcRatio(AmpAgcRatio::RATIO_1_1);
-  setFixedGain(12);
+  //setAgcRatio(AmpAgcRatio::RATIO_1_1);
+  //setFixedGain(12);
+  uint8_t configValues[] = { 0xC2, 0x01, 0x01, 0x00, 0x06, 0x9F, 0xC0};
+
+  auto status = bus->write(deviceAddress, REG_FUNCTION_CTRL, I2C_MEMADD_SIZE_8BIT, configValues, 7, 100);
+  if (status != System::Status::STATUS_OK)
+  {
+    state = System::State::ERROR;
+    return;
+  }
 }
 
 /**

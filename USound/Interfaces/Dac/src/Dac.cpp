@@ -67,7 +67,7 @@ Dac::Dac(System::DacInterface dacInterface) :
     deviceAddress(0),
     bus(nullptr),
     dacEnableGpio(nullptr),
-    gain(0xF0)
+    gain(0xFF)
 {
   state = System::State::UNINITIALISED;
 }
