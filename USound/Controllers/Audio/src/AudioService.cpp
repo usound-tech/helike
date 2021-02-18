@@ -53,6 +53,7 @@ enum AudioCommand
   CMD_SKIP_PREV,
   CMD_SKIP_NEXT,
   CMD_RECONF_FILTERS,
+  CMD_RECONF_SINK,
   CMD_COUNT
 };
 
@@ -251,6 +252,12 @@ void AudioService::reconfigureFilters()
   globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
 }
 
+void AudioService::reconfigureSink()
+{
+  AudioServiceCmd cmd = { CMD_RECONF_SINK, 0, 0 };
+  globalServices->getOal()->sendMessageToQueue(controlMessageQueue, &cmd, 0);
+}
+
 void AudioService::prevTrack(AudioChangeSrc acs)
 {
 //NOT SUPPORTED
@@ -280,7 +287,7 @@ void AudioService::taskControlLoop()
     }
 
     now = xTaskGetTickCount();
-    if ((now - 200) < lastActionTs)
+    if ((cmd.cmd != CMD_RECONF_SINK) && ((now - 200) < lastActionTs))
     {
       continue;
     }
@@ -339,6 +346,10 @@ void AudioService::taskControlLoop()
 
       case CMD_RECONF_FILTERS:
         audioFilters->init();
+        break;
+
+      case CMD_RECONF_SINK:
+        audioSink->doAction(Action::RESET);
         break;
     }
   }

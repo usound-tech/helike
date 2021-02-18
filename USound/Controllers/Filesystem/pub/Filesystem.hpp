@@ -59,8 +59,10 @@ class File: public GlobalServiceConsumer
 {
 public:
   virtual bool open(const char *name, bool reportFailure) = 0;
+  virtual bool createOrTruncate(const char *name, bool reportFailure) = 0;
   virtual void close() = 0;
   virtual uint32_t read(uint8_t *dst, uint32_t len) = 0;
+  virtual uint32_t write(const uint8_t *src, uint32_t len) = 0;
   virtual bool seek(uint8_t offs) = 0;
 
   virtual ~File()
@@ -83,6 +85,7 @@ public:
   const virtual char* getNextListFileName(void *handle) = 0;
   virtual void closeList(void *handle) = 0;
   virtual bool statFile(const char* path, uint32_t* size, uint8_t* attributes) = 0;
+  virtual bool createFolder(const char* path) = 0;
 
   virtual FilesystemStatus getStatus() = 0;
   virtual File* getFile() = 0;

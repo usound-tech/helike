@@ -40,6 +40,7 @@
 #define RX_DMA_BUFFER_SIZE 64
 #define TX_DMA_BUFFER_SIZE 256
 
+#if UART_CONSOLE_ENABLED == 1
 namespace System
 {
 
@@ -276,3 +277,4 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 }
 
 }
+#endif

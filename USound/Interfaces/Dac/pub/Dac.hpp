@@ -56,6 +56,7 @@ private:
   bool verifyVersion();
   void configure();
   void configureAudioRate();
+  void configureOverrides();
 
 public:
 

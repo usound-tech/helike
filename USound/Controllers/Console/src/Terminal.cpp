@@ -43,6 +43,8 @@ namespace Controller
 #define COMMAND_LINE (128)
 #define ENDL "\n"
 
+#if UART_CONSOLE_ENABLED == 1
+
 Terminal::Terminal(bool hasHistory, std::function<void(const char*)> print, std::function<void(char*, uint16_t*, uint32_t)> gets) :
     escape_seq(0),
     escape(0),
@@ -435,6 +437,6 @@ void Terminal::insertChar(uint8_t ch)
     }
   }
 }
-
+#endif
 
 }

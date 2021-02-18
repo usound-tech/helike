@@ -415,8 +415,7 @@ uint8_t Telemetry::getBistStatus(TelemetryCmd &cmd)
   return 0;
 }
 
-uint8_t
-Telemetry::cmdHandler(TelemetryCmd &cmd)
+uint8_t Telemetry::cmdHandler(TelemetryCmd &cmd)
 {
   switch (HID_SUB_CMD(cmd.cmd))
   {
@@ -469,8 +468,7 @@ Telemetry::cmdHandler(TelemetryCmd &cmd)
  * @param cmd
  * @return
  */
-uint8_t
-Telemetry::initBsonTx(TelemetryCmd &cmd)
+uint8_t Telemetry::initBsonTx(TelemetryCmd &cmd)
 {
   if (bsonBuffer != nullptr)
   {
@@ -490,8 +488,7 @@ Telemetry::initBsonTx(TelemetryCmd &cmd)
  * @param cmd
  * @return
  */
-uint8_t
-Telemetry::handleBsonTx(TelemetryCmd &cmd)
+uint8_t Telemetry::handleBsonTx(TelemetryCmd &cmd)
 {
   if (bsonBuffer == nullptr)
   {
@@ -510,8 +507,7 @@ Telemetry::handleBsonTx(TelemetryCmd &cmd)
  * @param cmd
  * @return
  */
-uint8_t
-Telemetry::finalizeBsonTx(TelemetryCmd &cmd)
+uint8_t Telemetry::finalizeBsonTx(TelemetryCmd &cmd, bool persistData)
 {
   if (bsonBuffer == nullptr)
   {
@@ -544,6 +540,12 @@ Telemetry::finalizeBsonTx(TelemetryCmd &cmd)
   filterReader.extractConfig(bsonBuffer);
 
   globalServices->getAudioService()->reconfigureFilters();
+  globalServices->getAudioService()->reconfigureSink();
+
+  if(persistData)
+  {
+    filterReader.persistConfig(bsonBuffer, bsonSize);
+  }
 
   delete[] bsonBuffer;
   bsonBuffer = nullptr;
@@ -556,8 +558,7 @@ Telemetry::finalizeBsonTx(TelemetryCmd &cmd)
  * @param cmd
  * @return
  */
-uint8_t
-Telemetry::filterHandler(TelemetryCmd &cmd)
+uint8_t Telemetry::filterHandler(TelemetryCmd &cmd)
 {
   switch (HID_SUB_CMD(cmd.cmd))
   {
@@ -568,7 +569,10 @@ Telemetry::filterHandler(TelemetryCmd &cmd)
       return handleBsonTx(cmd);
 
     case TelemetryFilterCmdCode::TELEMETRY_FIN_BSON:
-      return finalizeBsonTx(cmd);
+      return finalizeBsonTx(cmd, false);
+
+    case TELEMETRY_FIN_AND_PERSIST_BSON:
+      return finalizeBsonTx(cmd, true);
 
     default:
       return -1;
@@ -590,8 +594,7 @@ void Telemetry::addCommand(uint8_t *cmdData)
 /**
  * @brief Manage the CUSTOM HID class In Event
  */
-int8_t
-Telemetry::getReply(uint8_t *dataOut)
+int8_t Telemetry::getReply(uint8_t *dataOut)
 {
   auto oal = globalServices->getOal();
   TelemetryCmd reply;

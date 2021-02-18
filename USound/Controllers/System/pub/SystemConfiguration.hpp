@@ -34,6 +34,7 @@
 
 #pragma once
 
+#include <utility>
 #include "OAL/pub/Hal.hpp"
 #include "Controllers/Service/pub/Services.hpp"
 #include "Controllers/System/pub/ModuleConfig.hpp"
@@ -49,6 +50,7 @@
 namespace System
 {
 
+
 /**
  * Defines the system configuration attributes of a DAC interface
  */
@@ -59,12 +61,16 @@ public:
   SystemBus bus;                //!< The associated system bus id
   GpioInterface ctrlGpio;       //!< The associated gpio line
 
+  std::pair<uint8_t, uint8_t> registerValues[16];   //!< Register value overrides
+  uint32_t registerValueOverrideCount = 0;          //!< Number of register override entries
+
   DacConfiguration(uint32_t address, SystemBus bus, GpioInterface ctrlGpio) :
       address(address),
       bus(bus),
       ctrlGpio(ctrlGpio)
   {
   }
+
 };
 
 /**
@@ -97,12 +103,17 @@ public:
   SystemBus bus;                //!< The associated system bus id
   GpioInterface ctrlGpio;       //!< The associated gpio line
 
+  std::pair<uint8_t, uint8_t> registerValues[16];   //!< Register value overrides
+  uint32_t registerValueOverrideCount = 0;                    //!< Number of register override entries
+
   AmpConfiguration(uint32_t address, SystemBus bus, GpioInterface ctrlGpio) :
       address(address),
       bus(bus),
       ctrlGpio(ctrlGpio)
   {
   }
+
+
 };
 
 /**
@@ -317,6 +328,11 @@ public:
   AudioMode getAudioMode()
   {
     return audioMode;
+  }
+
+  uint32_t getTargetSpeakerSwitches()
+  {
+    return targetSpeakerSwitches;
   }
 };
 

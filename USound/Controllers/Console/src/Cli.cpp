@@ -35,6 +35,7 @@
 #include "Cli.hpp"
 #include "vt100.hpp"
 
+#if UART_CONSOLE_ENABLED == 1
 
 namespace cli
 {
@@ -232,3 +233,4 @@ std::string StringTokenizer::getNextToken()
 }
 
 }
+#endif

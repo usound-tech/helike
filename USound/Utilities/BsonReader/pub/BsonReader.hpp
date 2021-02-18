@@ -34,6 +34,7 @@
 
 #pragma once
 #include <stdint.h>
+#include <utility>
 #include "arm_math.h"
 
 #define BSON_DOC_SIZE    64  /* Max BSON Document size */
@@ -109,4 +110,5 @@ public:
   bool findField(const uint8_t* data, const char *fieldName, BsonElem& elem);
   uint32_t getArrayCount(const uint8_t* arrayOffset);
   uint32_t getFloatArray(float32_t* dst, const uint8_t* arrayOffset, uint32_t len);
+  uint32_t getIntPairArray(std::pair<uint8_t, uint8_t> *dst, const uint8_t *data, uint32_t maxCount);
 };

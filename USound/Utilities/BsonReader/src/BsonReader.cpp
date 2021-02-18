@@ -82,6 +82,50 @@ uint32_t BsonReader::getFloatArray(float32_t *dst, const uint8_t *data, uint32_t
 }
 
 /**
+ * Reads an integer tuple array (keys is an integer and value is also an integer) from BSON and converts it to a pair array.
+ *
+ * @param dst the destination pair array
+ * @param data the beginning of the Bson element
+ * @param maxCount the maximum amount of numbers to retrieve
+ *
+ * @return the number of values it retrieved
+ */
+uint32_t BsonReader::getIntPairArray(std::pair<uint8_t, uint8_t> *dst, const uint8_t *data, uint32_t maxCount)
+{
+  uint32_t count = 0;
+
+  uint32_t off = sizeof(uint32_t);
+  BsonElem arrayElem;
+
+  uint32_t len;
+  memcpy(&len, data, sizeof(uint32_t));
+
+  while (((off + 1) < len) && (count < maxCount))
+  {
+    getField(&data[off], arrayElem);
+
+    dst[count].first = (uint8_t)strtoul((const char*)arrayElem.name, nullptr, 0);
+
+    if (arrayElem.type == BSON_TYPE_STRING)
+    {
+      dst[count].second = (uint8_t)strtoul((const char*)arrayElem.data, nullptr, 0);
+    }
+    else if (arrayElem.type == BSON_TYPE_INT32)
+    {
+      int32_t tmp;
+      memcpy(&tmp, arrayElem.data, 4);
+
+      dst[count].second = (uint8_t)tmp;
+    }
+
+    off += arrayElem.elemLen;
+    count++;
+  }
+
+  return count;
+}
+
+/**
  * Retrieves the number of array elements in Bson.
  *
  * @param data the beginning of the Bson element

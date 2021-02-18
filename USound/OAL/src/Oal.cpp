@@ -59,6 +59,7 @@ Bus* HalFactory::getI2c(void *handle, I2cInterface i2cInterface)
   return bus;
 }
 
+#if UART_CONSOLE_ENABLED == 1
 /**
  * Returns an instance of the FreeRtos Uart wrapper
  */
@@ -69,6 +70,7 @@ Bus* HalFactory::getUart(void *handle, UartInterface uartInterface)
 
   return bus;
 }
+#endif
 
 /**
  * Returns an instance of the FreeRtos Gpio wrapper

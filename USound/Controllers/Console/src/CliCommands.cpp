@@ -42,6 +42,7 @@
 #include <cstring>
 
 #define COUNT_OF(X) (sizeof(X) / sizeof(*X))
+#if UART_CONSOLE_ENABLED == 1
 
 namespace cli
 {
@@ -641,3 +642,5 @@ const CliCommand CliCommands::rootCommand = { "/", "", nullptr, COUNT_OF(CliComm
 
 
 }
+
+#endif

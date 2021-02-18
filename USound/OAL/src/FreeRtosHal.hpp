@@ -39,6 +39,7 @@
 #include "semphr.h"
 #include "stm32h7xx_hal.h"
 #include "Controllers/Service/pub/Services.hpp"
+#include "Controllers/System/pub/ModuleConfig.hpp"
 #include "Utilities/Fifo/pub/Fifo.hpp"
 #include "Interfaces/Usb/src/Core/Inc/usbd_def.h"
 #include <functional>
@@ -73,6 +74,7 @@ public:
 };
 
 
+#if UART_CONSOLE_ENABLED == 1
 /**
  * This class wraps the FreeRtos HAL Uart operations.
  */
@@ -106,6 +108,7 @@ public:
   void notifyDataReceived(uint16_t length);
   void notifyDataTransmitted();
 };
+#endif
 
 /**
  * This interface defines the common operations shared across all the system gpios

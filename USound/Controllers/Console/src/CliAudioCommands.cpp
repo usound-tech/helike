@@ -42,6 +42,7 @@
 #include <cstring>
 
 #define COUNT_OF(X) (sizeof(X) / sizeof(*X))
+#if UART_CONSOLE_ENABLED == 1
 
 namespace cli
 {
@@ -305,3 +306,4 @@ bool CliCommands::eqConfiguration(const CliCommand &cmd, StringTokenizer &tokeni
   return true;
 }
 }
+#endif

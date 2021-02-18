@@ -79,7 +79,41 @@ void FilterReader::configFilter(uint32_t configOption)
     extractConfig(tmpBuffer);
   }
 
+  filterFile->close();
+
   delete[] tmpBuffer;
+}
+
+void FilterReader::persistConfig(const uint8_t *data, uint32_t size)
+{
+  auto fs = globalServices->getFilesystem();
+  auto sysConfig = globalServices->getSystemConfiguration();
+
+  if (!fs->isMounted() || !sysConfig->getTargetSpeakerSwitches())
+  {
+    return;
+  }
+
+  uint32_t len;
+  uint8_t attrs;
+
+  fs->createFolder("/usound");
+  if (!fs->statFile("/usound", &len, &attrs))
+  {
+    return;
+  }
+
+  std::string fileName = "/usound/config-" + std::to_string(sysConfig->getTargetSpeakerSwitches());
+  fileName += ".bin";
+
+  std::unique_ptr<System::File> filterFile(globalServices->getFilesystem()->getFile());
+  if (!filterFile->createOrTruncate(fileName.c_str(), false))
+  {
+    return;
+  }
+
+  filterFile->write(data, size);
+  filterFile->close();
 }
 
 void FilterReader::loadFloatArray(const uint8_t *data, const char *name, float32_t *coeffArray, uint32_t maxCount)
@@ -198,6 +232,8 @@ void FilterReader::extractConfig(const uint8_t *data)
   loadBool(data, "predistortionEnabled", &filterConfig->predistortionConfig.enabled);
   extractPredistortionConfig(data, "predistortionConfig", filterConfig->predistortionConfig);
 #endif
+
+  extractDacAmpConfig(data);
 }
 
 void FilterReader::extractDrcConfig(const uint8_t *data, const char *name, System::DrcConfiguration &drcConfig)
@@ -250,6 +286,43 @@ void FilterReader::extractPredistortionConfig(const uint8_t *data, const char *n
     }
   }
 #endif
+}
+
+
+void FilterReader::extractDacAmpConfig(const uint8_t *data)
+{
+  BsonReader bson;
+  BsonElem objElem;
+  BsonElem subobjElem;
+
+  auto sysConfig = globalServices->getSystemConfiguration();
+
+  if (bson.findField(data, "hwConfig", objElem))
+  {
+    if (bson.findField(objElem.data, "dacTweeter", subobjElem))
+    {
+      auto dacConfig = sysConfig->getDacInterfaceConfiguration(System::DacInterface::DAC_TWEETER_IFACE);
+      dacConfig->registerValueOverrideCount = bson.getIntPairArray(dacConfig->registerValues, subobjElem.data, 16);
+    }
+
+    if (bson.findField(objElem.data, "dacWoofer", subobjElem))
+    {
+      auto dacConfig = sysConfig->getDacInterfaceConfiguration(System::DacInterface::DAC_WOOFER_IFACE);
+      dacConfig->registerValueOverrideCount = bson.getIntPairArray(dacConfig->registerValues, subobjElem.data, 16);
+    }
+
+    if (bson.findField(objElem.data, "ampWooferLeft", subobjElem))
+    {
+      auto ampConfig = sysConfig->getAmpInterfaceConfiguration(System::AmpInterface::AMP_WOOFER_L);
+      ampConfig->registerValueOverrideCount = bson.getIntPairArray(ampConfig->registerValues, subobjElem.data, 16);
+    }
+
+    if (bson.findField(objElem.data, "ampWooferRight", subobjElem))
+    {
+      auto ampConfig = sysConfig->getAmpInterfaceConfiguration(System::AmpInterface::AMP_WOOFER_R);
+      ampConfig->registerValueOverrideCount = bson.getIntPairArray(ampConfig->registerValues, subobjElem.data, 16);
+    }
+  }
 }
 
 }

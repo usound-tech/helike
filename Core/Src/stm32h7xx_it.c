@@ -23,6 +23,7 @@
 #include "stm32h7xx_it.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "Controllers/System/pub/ModuleConfig.hpp"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -310,6 +311,7 @@ void I2C2_EV_IRQHandler(void)
  */
 void USART2_IRQHandler(void)
 {
+#if UART_CONSOLE_ENABLED == 1
   /* USER CODE BEGIN USART2_IRQn 0 */
   UART_TimeoutCallbackFromISR(&huart2);
   /* USER CODE END USART2_IRQn 0 */
@@ -317,6 +319,7 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 1 */
 
   /* USER CODE END USART2_IRQn 1 */
+#endif
 }
 
 /**
@@ -339,6 +342,7 @@ void EXTI15_10_IRQHandler(void)
  */
 void UART5_IRQHandler(void)
 {
+#if UART_CONSOLE_ENABLED == 1
   /* USER CODE BEGIN UART5_IRQn 0 */
   UART_TimeoutCallbackFromISR(&huart5);
   /* USER CODE END UART5_IRQn 0 */
@@ -346,6 +350,7 @@ void UART5_IRQHandler(void)
   /* USER CODE BEGIN UART5_IRQn 1 */
 
   /* USER CODE END UART5_IRQn 1 */
+#endif
 }
 
 /**

@@ -60,9 +60,12 @@ private:
 
 public:
   bool open(const char *name, bool reportFailure) override;
+  bool createOrTruncate(const char *name, bool reportFailure) override;
   void close() override;
   uint32_t read(uint8_t *dst, uint32_t len) override;
+  uint32_t write(const uint8_t *src, uint32_t len) override;
   bool seek(uint8_t offs) override;
+  void truncate();
 };
 
 
@@ -84,6 +87,7 @@ public:
   void init() override;
   bool mount() override;
   void umount() override;
+  bool createFolder(const char* path);
 
   void* startList(void *handle) override;
   const char* getNextListFileName(void *handle) override;

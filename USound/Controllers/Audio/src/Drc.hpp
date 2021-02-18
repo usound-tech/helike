@@ -61,9 +61,6 @@ private:
   void calcInstantaneousTargetGain(float32_t *audioLevelDbBlock, float32_t *gainBlock);
   void calcSmoothedGainInDb(float32_t *inst_targ_gain_dB_block);
 
-  float32_t pow10f(float32_t x);
-  float32_t log2fApprox(float32_t X);
-  float32_t log10fApprox(float32_t x);
 
 public:
   Drc(System::DrcConfiguration *drcConfig, uint32_t blockSize);

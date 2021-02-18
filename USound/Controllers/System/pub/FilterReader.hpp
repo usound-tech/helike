@@ -49,6 +49,7 @@ private:
 
   void extractDrcConfig(const uint8_t *data, const char *name, System::DrcConfiguration &drcConfig);
   void extractPredistortionConfig(const uint8_t *data, const char *name, System::PredistortionConfiguration &predistortionConfig);
+  void extractDacAmpConfig(const uint8_t *data);
 
   uint32_t getArraySize(const uint8_t *data, const char *name);
   void loadFloatArray(const uint8_t *data, const char *name, float32_t *coeffArray, uint32_t maxCount);
@@ -62,6 +63,7 @@ public:
 
   void extractConfig(const uint8_t *data);
   void configFilter(uint32_t configOption);
+  void persistConfig(const uint8_t *data, uint32_t size);
 };
 
 }

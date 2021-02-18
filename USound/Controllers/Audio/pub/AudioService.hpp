@@ -104,6 +104,7 @@ public:
   void nextTrack(AudioChangeSrc acs);
   void prevTrack(AudioChangeSrc acs);
   void reconfigureFilters();
+  void reconfigureSink();
 
   void notifyMoreDataNeeded();
   void notifyMoreDataAvailable();

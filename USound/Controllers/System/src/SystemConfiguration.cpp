@@ -233,10 +233,18 @@ void* SystemConfiguration::getHandleForSystemBus(SystemBus bus) const
       return &hi2c4;
 
     case SystemBus::CTRL_UART:
+#if UART_CONSOLE_ENABLED == 1
       return &huart5;
+#else
+      return nullptr;
+#endif
 
     case SystemBus::DEBUG_UART:
+#if UART_CONSOLE_ENABLED == 1
       return &huart2;
+#else
+      return nullptr;
+#endif
 
     case SystemBus::SAI_TWEETER:
       return &hsai_BlockA3;

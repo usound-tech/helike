@@ -86,7 +86,8 @@ enum TelemetryFilterCmdCode
 {
   TELEMETRY_INIT_BSON = 0x03,
   TELEMETRY_TX_BSON = 0x04,
-  TELEMETRY_FIN_BSON = 0x05
+  TELEMETRY_FIN_BSON = 0x05,
+  TELEMETRY_FIN_AND_PERSIST_BSON = 0x06
 };
 
 /**
@@ -116,7 +117,7 @@ private:
 
   uint8_t initBsonTx(TelemetryCmd &cmd);
   uint8_t handleBsonTx(TelemetryCmd &cmd);
-  uint8_t finalizeBsonTx(TelemetryCmd &cmd);
+  uint8_t finalizeBsonTx(TelemetryCmd &cmd, bool persistData);
 
   uint8_t cmdHandler(TelemetryCmd &cmd);
   uint8_t filterHandler(TelemetryCmd &cmd);

@@ -62,11 +62,12 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "Controllers/System/pub/ModuleConfig.hpp"
 #include "../Inc/usbd_audio.h"
 #include "../../../USB_DEVICE/App/usbd_desc.h"
 #include "../../../Core/Inc/usbd_ctlreq.h"
 #include <stdint.h>
-#include "arm_math.h"
+#include "Utilities/MathUtils.hpp"
 #include "main.h"
 
 #define AUDIO_SAMPLE_FREQ(frq)      (uint8_t)(frq), (uint8_t)((frq >> 8)), (uint8_t)((frq >> 16))
@@ -344,7 +345,7 @@ volatile uint32_t lockedCount = 0;
 volatile uint32_t usb_cycles = 0;   // counts cycles of 8ms
 volatile uint32_t first_sync_with_sai = 0;   // detects first sai dma end
 static uint32_t mute = 0;
-static uint16_t curvol = DEFAULT_OUT_VOLUME;
+static int16_t curvol = DEFAULT_OUT_VOLUME;
 
 int16_t usb_buffer[EP_OUT_REQ_LEN];
 
@@ -586,9 +587,19 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef *pdev)
           {
             curvol = haudio->control.data[0] | ((uint16_t) haudio->control.data[1] << 8);
 
+#if LOGARITHMIC_GAIN_ENABLED == 1
+            // Received value is between -1024 to 1024, so we perform a log conversion
+            uint16_t val = 0xFF;
+            if(curvol > -1024)
+            {
+              val = 2 * (uint16_t)(0.5f + 60.0f * log10fApprox(2048.0f / (float32_t) (curvol + 1024)));
+            }
+            USB_IN_SetVolume(pdev, 0xFF - MIN(0xFF, val));
+#else
             // Received value is between -1024 to 1024, so we convert to 0 to 255
             uint16_t val = (((curvol + 1024) & 0xFFFF) >> 3);
-            USB_IN_SetVolume(pdev, MIN(255, val));
+            USB_IN_SetVolume(pdev, MIN(0xFF, val));
+#endif
           }
           break;
       }

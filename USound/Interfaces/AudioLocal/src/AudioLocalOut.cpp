@@ -101,6 +101,10 @@ void AudioLocalOut::doAction(System::Action action)
       stop();
       break;
 
+    case System::Action::RESET:
+      reset();
+      break;
+
     default:
       throw System::PeripheralException("Unknown action for AudioSaiOut: " + action);
   }
@@ -166,6 +170,25 @@ void AudioLocalOut::stop()
 
   saiWooferBus->disable();
   saiTweeterBus->disable();
+}
+
+/**
+ * Triggers the reset sequence on the amp Woofers and DACs
+ */
+void AudioLocalOut::reset()
+{
+  auto systemController = globalServices->getSystemController();
+
+  auto ampWooferR = systemController->getPeripheral(System::SystemPeripheral::WOOFER_AMP_R);
+  auto ampWooferL = systemController->getPeripheral(System::SystemPeripheral::WOOFER_AMP_L);
+  auto dacTweeter = systemController->getPeripheral(System::SystemPeripheral::DAC_TWEETER);
+  auto dacWoofer = systemController->getPeripheral(System::SystemPeripheral::DAC_WOOFER);
+
+  ampWooferR->doAction(System::Action::RESET);
+  ampWooferL->doAction(System::Action::RESET);
+
+  dacTweeter->doAction(System::Action::RESET);
+  dacWoofer->doAction(System::Action::RESET);
 }
 
 /**

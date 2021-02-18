@@ -36,6 +36,7 @@
 
 #include "./Drc.hpp"
 #include "cmath"
+#include "Utilities/MathUtils.hpp"
 
 /**
  * Default constructor of the Dynamic range compressor class
@@ -130,6 +131,7 @@ void Drc::calcAudioLevelInDb(const float32_t *pSrcLeft, const float32_t *pSrcRig
 
   //scale the wav_pow_block by 10.0 to complete the conversion to dB
   arm_scale_f32(audioLevelDbBlock, 10.0f, audioLevelDbBlock, blockSize);
+  arm_offset_f32(audioLevelDbBlock, 3, audioLevelDbBlock, blockSize);
 }
 
 /**
@@ -221,50 +223,4 @@ void Drc::calcSmoothedGainInDb(float32_t *gain)
   }
 }
 
-/**
- *  Fast approximation to the log2() function. It uses a two step
- *  process. First, it decomposes the floating-point number into
- *  a fractional component F and an exponent E. The fraction component
- *  is used in a polynomial approximation and then the exponent added
- *  to the result. A 3rd order polynomial is used and the result
- *  when computing db20() is accurate to 7.984884e-003 dB.
- *
- *  https://community.arm.com/tools/f/discussions/4292/cmsis-dsp-new-functionality-proposal/22621#22621
- */
-float32_t Drc::log2fApprox(float32_t X)
-{
-  float Y;
-  float F;
-  int E;
 
-  // This is the approximation to log2()
-  F = frexpf(fabsf(X), &E);
-  Y = 1.23149591368684f;
-  Y *= F;
-  Y += -4.11852516267426f;
-  Y *= F;
-  Y += 6.02197014179219f;
-  Y *= F;
-  Y += -3.13396450166353f;
-  Y += E;
-
-  return (Y);
-}
-
-/**
- * Accelerate the powf(10.0,x) function
- */
-float32_t Drc::pow10f(float32_t x)
-{
-  //return powf(10.0f,x)   //standard, but slower
-  return expf(2.302585092994f * x);  //faster:  exp(log(10.0f)*x)
-}
-
-/*
- * Accelerate the log10f(x) function
- */
-float32_t Drc::log10fApprox(float32_t x)
-{
-  //return log10f(x);   //standard, but slower
-  return log2fApprox(x) * 0.3010299956639812f; //faster:  log2(x)/log2(10)
-}

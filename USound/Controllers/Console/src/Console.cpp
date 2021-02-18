@@ -39,6 +39,8 @@
 #include "Terminal.hpp"
 #include <cstring>
 
+#if UART_CONSOLE_ENABLED == 1
+
 namespace Controller
 {
 
@@ -167,3 +169,5 @@ extern "C" int _write(int file, char *ptr, int len)
 #endif
   return 0;
 }
+#endif
+

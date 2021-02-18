@@ -157,6 +157,18 @@ void Amp::configure()
   //setFixedGain(12);
   uint8_t configValues[] = { 0xC2, 0x01, 0x01, 0x00, 0x06, 0x9F, 0xC0};
 
+  System::SystemConfiguration *systemConfiguration = globalServices->getSystemConfiguration();
+  auto ampConfiguration = systemConfiguration->getAmpInterfaceConfiguration(ampInterface);
+
+  for(uint32_t i=0; i< ampConfiguration->registerValueOverrideCount; i++)
+  {
+    auto& regValues = ampConfiguration->registerValues[i];
+    if(regValues.first < sizeof(configValues))
+    {
+      configValues[regValues.first] = regValues.second;
+    }
+  }
+
   auto status = bus->write(deviceAddress, REG_FUNCTION_CTRL, I2C_MEMADD_SIZE_8BIT, configValues, 7, 100);
   if (status != System::Status::STATUS_OK)
   {

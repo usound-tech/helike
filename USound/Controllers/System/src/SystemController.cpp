@@ -78,12 +78,12 @@ void SystemController::init()
   initBuses();
   initSystemStatus();
   initFilesystem();
-  initPeripherals();
   initConsoles();
 
   auto systemConfiguration = globalServices->getSystemConfiguration();
   systemConfiguration->updateFilterConfiguration();
 
+  initPeripherals();
   initAudioEngine();
 }
 
@@ -103,11 +103,16 @@ void SystemController::initBuses()
   handle = systemConfiguration->getHandleForSystemBus(SystemBus::I2C_WOOFER);
   systemBuses[SystemBus::I2C_WOOFER] = handle ? halFactory.getI2c(handle, I2cInterface::I2C_WOOFER_DAC) : nullptr;
 
+#if UART_CONSOLE_ENABLED == 1
   handle = systemConfiguration->getHandleForSystemBus(SystemBus::CTRL_UART);
   systemBuses[SystemBus::CTRL_UART] = handle ? halFactory.getUart(handle, UartInterface::UART_CTRL) : nullptr;
 
   handle = systemConfiguration->getHandleForSystemBus(SystemBus::DEBUG_UART);
   systemBuses[SystemBus::DEBUG_UART] = handle ? halFactory.getUart(handle, UartInterface::UART_DEBUG) : nullptr;
+#else
+  systemBuses[SystemBus::CTRL_UART] = nullptr;
+  systemBuses[SystemBus::DEBUG_UART] = nullptr;
+#endif
 
   handle = systemConfiguration->getHandleForSystemBus(SystemBus::SAI_TWEETER);
   SaiConfiguration *saiConfiguration = systemConfiguration->getSaiInterfaceConfiguration(SaiInterface::TWEETER);
@@ -229,10 +234,11 @@ void SystemController::initPeripherals()
  */
 void SystemController::initConsoles()
 {
-  auto systemConfiguration = globalServices->getSystemConfiguration();
-
   systemConsoles[SystemConsole::CONSOLE_CTRL] = nullptr;
   systemConsoles[SystemConsole::CONSOLE_DEBUG] = nullptr;
+
+#if UART_CONSOLE_ENABLED == 1
+  auto systemConfiguration = globalServices->getSystemConfiguration();
 
   if (systemBuses[SystemBus::CTRL_UART])
   {
@@ -253,6 +259,7 @@ void SystemController::initConsoles()
       systemConsoles[SystemConsole::CONSOLE_DEBUG]->init();
     }
   }
+#endif
 
   telemetry = new Controller::Telemetry(&hUsbDeviceFS);
   telemetry->init();

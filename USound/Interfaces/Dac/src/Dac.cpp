@@ -168,8 +168,33 @@ void Dac::configure()
 
   configureAudioRate();
 
+  configureOverrides();
+
   //TODO: Remove and make mute and vol a public interface
   mute(false);
+}
+
+/**
+ * Configures the register values provided by the user
+ */
+void Dac::configureOverrides()
+{
+  System::SystemConfiguration *systemConfiguration = globalServices->getSystemConfiguration();
+  auto dacConfiguration = systemConfiguration->getDacInterfaceConfiguration(dacInterface);
+
+  for(uint32_t i=0; i< dacConfiguration->registerValueOverrideCount; i++)
+  {
+    auto& regValues = dacConfiguration->registerValues[i];
+    if(regValues.first <= REG_RES_4)
+    {
+      auto status = bus->write(deviceAddress, regValues.first, I2C_MEMADD_SIZE_8BIT, (uint8_t*) &regValues.second, 1, 100);
+      if (status != System::Status::STATUS_OK)
+      {
+        state = System::State::ERROR;
+        return;
+      }
+    }
+  }
 }
 
 /**

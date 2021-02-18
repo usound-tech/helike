@@ -189,8 +189,12 @@ int main(void)
     MX_GPIO_Init();
     MX_DMA_Init();
     MX_CRC_Init();
+
+#if UART_CONSOLE_ENABLED == 1
     MX_UART5_Init();
     MX_USART2_UART_Init();
+#endif
+
     MX_TIM6_Init();
     MX_SDMMC2_SD_Init();
     MX_FATFS_Init();

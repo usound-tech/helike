@@ -44,3 +44,12 @@
 
 //!< When set to 1, the tone generator is included as an audio source
 #define TONE_GEN_ENABLED 0
+
+//!< When set to 1, it enables the UART console
+#define UART_CONSOLE_ENABLED 0
+
+//!< When set to 1, it enables file creation/updates on the SD CARD
+#define SDCARD_WRITE_ENABLED 1
+
+//!< When set to 1, it converts the host gain to the DAC value using a logarithmic scale
+#define LOGARITHMIC_GAIN_ENABLED 1

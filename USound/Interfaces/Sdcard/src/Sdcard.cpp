@@ -53,6 +53,16 @@ void SdcardFs::init()
 }
 
 /**
+ * Creates a new folder
+ * @param path
+ * @return true if the folder is created
+ */
+bool SdcardFs::createFolder(const char* path)
+{
+  return f_mkdir(path) == FR_OK;
+}
+
+/**
  * Mounts the fatfs
  * @return
  */
@@ -239,11 +249,36 @@ bool SdcardFile::open(const char *name, bool reportFailure)
 }
 
 /**
+ * Opens a file from the sdcard and returns true when successful
+ * @param name
+ * @param flags
+ * @return
+ */
+bool SdcardFile::createOrTruncate(const char *name, bool reportFailure)
+{
+  FRESULT status = f_open(&fileInfo, name, FA_WRITE|FA_CREATE_ALWAYS);
+  if ((status != FR_OK) && reportFailure)
+  {
+    globalServices->getSystemStatus()->raiseError(ErrorStatus::ERS_SDCARD_FAILED);
+  }
+
+  return status == FR_OK;
+}
+
+/**
  * Closes a previously opened file
  */
 void SdcardFile::close()
 {
   f_close(&fileInfo);
+}
+
+/**
+ * Truncates a previously opened file
+ */
+void SdcardFile::truncate()
+{
+  f_truncate(&fileInfo);
 }
 
 /**
@@ -263,6 +298,30 @@ uint32_t SdcardFile::read(uint8_t *dst, uint32_t len)
   }
 
   return bytesRead;
+}
+
+/**
+ * Reads a requested amount of bytes from an sdcard file
+ * @param dst
+ * @param len
+ * @return
+ */
+uint32_t SdcardFile::write(const uint8_t *src, uint32_t len)
+{
+#if SDCARD_WRITE_ENABLED == 1
+  uint32_t bytesWritten;
+
+  if (f_write(&fileInfo, (const void*) src, (UINT) len, (UINT*) &bytesWritten) != FR_OK)
+  {
+    globalServices->getSystemStatus()->raiseError(ErrorStatus::ERS_SDCARD_FAILED);
+    bytesWritten = 0;
+  }
+
+  return bytesWritten;
+#else
+  return 0;
+#endif
+
 }
 
 /**

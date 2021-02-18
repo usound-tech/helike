@@ -24,32 +24,26 @@
 //
 //====================================================================
 //
-//  Description: Generic helper methods to make life easier
-//  Filename: Helpers.hpp
+//  Description: Useful math operations
+//  Filename: MathUtils.hpp
 //  Author(s): Nik Kostaras (nk@socfpga.io)
 //  Date: 6-May-2020
 //
 //====================================================================
 
+
 #pragma once
 
-#include <string>
-#include <exception>
-#include <memory>
+#include "arm_math.h"
 
-/*
- template<typename ... Args>
- std::string stringFormat(const std::string &format, Args ... args)
- {
- size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
- if (size <= 0)
- {
- throw "Error during formatting.";
- }
+#ifdef __cplusplus
+extern "C" {
+#endif
 
- std::unique_ptr<char[]> buf(new char[size]);
- snprintf(buf.get(), size, format.c_str(), args ...);
+float32_t pow10f(float32_t x);
+float32_t log2fApprox(float32_t X);
+float32_t log10fApprox(float32_t x);
 
- return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
- }
- */
+#ifdef __cplusplus
+}
+#endif

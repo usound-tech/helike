@@ -65,6 +65,7 @@ private:
 private:
   void start();
   void stop();
+  void reset();
 
 public:
   AudioLocalOut();
