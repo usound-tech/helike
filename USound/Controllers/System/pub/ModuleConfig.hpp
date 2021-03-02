@@ -53,3 +53,6 @@
 
 //!< When set to 1, it converts the host gain to the DAC value using a logarithmic scale
 #define LOGARITHMIC_GAIN_ENABLED 1
+
+//!< When set to 1, it maps theft audio channel to right and vice-versa
+#define SWAP_AUDIO_CHANNELS 1

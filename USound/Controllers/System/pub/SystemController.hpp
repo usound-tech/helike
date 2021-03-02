@@ -54,25 +54,25 @@ class SystemController: public GlobalServiceConsumer
 private:
 
   //!< This table holds the pointers to all the system peripherals
-  Peripheral *systemPeripherals[PERIPHERAL_COUNT];
+  Peripheral *systemPeripherals[PERIPHERAL_COUNT] = { nullptr };
 
   //!< This table holds the pointers to all the system buses
-  Bus *systemBuses[BUS_COUNT];
+  Bus *systemBuses[BUS_COUNT] = { nullptr };
 
   //!< This table holds the instances of all consoles
-  Controller::Console *systemConsoles[CONSOLE_COUNT];
+  Controller::Console *systemConsoles[CONSOLE_COUNT] = { nullptr };
 
   //!< This table holds the instances of all gpios
-  Gpio *systemGpios[GPIO_COUNT];
+  Gpio *systemGpios[GPIO_COUNT] = { nullptr };
 
   //!< This table holds the instances of all audio sinks
-  System::AudioSink<uint16_t> *systemAudioSinks[AUDIO_SINK_COUNT];
+  System::AudioSink<uint16_t> *systemAudioSinks[AUDIO_SINK_COUNT] = { nullptr };
 
   //!< This table holds the instances of all audio sources
-  System::AudioSource<uint16_t> *systemAudioSources[AUDIO_SRC_COUNT];
+  System::AudioSource<uint16_t> *systemAudioSources[AUDIO_SRC_COUNT] = { nullptr };
 
   //!< This object holds the pointer to the telemetry controller
-  Controller::Telemetry *telemetry;
+  Controller::Telemetry *telemetry = nullptr;
 
   void initBuses();
   void initPeripherals();

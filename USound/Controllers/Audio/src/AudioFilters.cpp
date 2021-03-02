@@ -137,6 +137,12 @@ void AudioFilters::interlacef32To16(const float32_t *pSrc, int16_t *pDst, uint32
  */
 void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
 {
+#if SWAP_AUDIO_CHANNELS == 1
+	uint8_t leftChannelIndex = 1;
+#else
+	uint8_t leftChannelIndex = 0;
+#endif
+
   deinterlace16Tof32(pSrc, channelSamples[PcmChannel::LEFT], 2);
   deinterlace16Tof32(&pSrc[1], channelSamples[PcmChannel::RIGHT], 2);
 
@@ -160,13 +166,13 @@ void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
     xoverTweeterFilters.run(PcmChannel::LEFT, channelSamples[PcmChannel::LEFT], channelSamples[PcmChannel::LEFT]);
     xoverTweeterFilters.run(PcmChannel::RIGHT, channelSamples[PcmChannel::RIGHT], channelSamples[PcmChannel::RIGHT]);
 
-    interlacef32To16(channelSamples[PcmChannel::LEFT + XOVER_SAMPLES], pDst[STREAM_ID::STREAM_WOOFER], 2);
-    interlacef32To16(channelSamples[PcmChannel::RIGHT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][1], 2);
+    interlacef32To16(channelSamples[PcmChannel::LEFT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2);
+    interlacef32To16(channelSamples[PcmChannel::RIGHT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2);
   }
   else
   {
-    interlacef32To16(channelSamples[PcmChannel::LEFT], pDst[STREAM_ID::STREAM_WOOFER], 2);
-    interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_WOOFER][1], 2);
+    interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2);
+    interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2);
   }
 
 #if PREDISTORTION_MODULE_ENABLED == 1
@@ -176,8 +182,8 @@ void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
       );
 #endif
 
-  interlacef32To16(channelSamples[PcmChannel::LEFT], pDst[STREAM_ID::STREAM_TWEETER], 2);
-  interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_TWEETER][1], 2);
+  interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_TWEETER][leftChannelIndex], 2);
+  interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_TWEETER][!leftChannelIndex], 2);
 }
 
 
