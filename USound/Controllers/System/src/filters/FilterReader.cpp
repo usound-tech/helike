@@ -127,6 +127,17 @@ void FilterReader::loadFloatArray(const uint8_t *data, const char *name, float32
   }
 }
 
+void FilterReader::loadIntArray(const uint8_t *data, const char *name, int32_t *coeffArray, uint32_t maxCount)
+{
+  BsonReader bson;
+  BsonElem arrayElem;
+
+  if (bson.findField(data, name, arrayElem))
+  {
+    bson.getInt32Array(coeffArray, arrayElem.data, maxCount);
+  }
+}
+
 uint32_t FilterReader::getArraySize(const uint8_t *data, const char *name)
 {
   BsonReader bson;
@@ -228,9 +239,9 @@ void FilterReader::extractConfig(const uint8_t *data)
   loadBool(data, "levelerDrcEnabled", &filterConfig->levelerDrcConfig.enabled);
   loadBool(data, "limiterDrcEnabled", &filterConfig->limiterDrcConfig.enabled);
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-  loadBool(data, "predistortionEnabled", &filterConfig->predistortionConfig.enabled);
-  extractPredistortionConfig(data, "predistortionConfig", filterConfig->predistortionConfig);
+#if ALA_MODULE_ENABLED == 1
+  loadBool(data, "alaEnabled", &filterConfig->alaConfig.enabled);
+  extractAlaConfig(data, "alaConfig", filterConfig->alaConfig);
 #endif
 
   extractDacAmpConfig(data);
@@ -252,42 +263,18 @@ void FilterReader::extractDrcConfig(const uint8_t *data, const char *name, Syste
   }
 }
 
-void FilterReader::extractPredistortionConfig(const uint8_t *data, const char *name, System::PredistortionConfiguration &predistortionConfig)
+void FilterReader::extractAlaConfig(const uint8_t *data, const char *name, System::AlaConfiguration &alaConfig)
 {
-#if PREDISTORTION_MODULE_ENABLED == 1
+#if ALA_MODULE_ENABLED == 1
   BsonReader bson;
   BsonElem arrayElem;
 
   if (bson.findField(data, name, arrayElem))
   {
-    loadFloatArray(arrayElem.data, "downsampling", predistortionConfig.coeffs[System::PredistortionCoeffcientType::DOWNSAMPLING], MASTER_EQ_STAGES * 5);
-    loadFloatArray(arrayElem.data, "upsampling", predistortionConfig.coeffs[System::PredistortionCoeffcientType::UPSAMPLING], MASTER_EQ_STAGES * 5);
-
-    uint32_t rangeSize = getArraySize(arrayElem.data, "inputRange");
-    predistortionConfig.rangeSize = rangeSize;
-
-    if (rangeSize)
-    {
-      if (predistortionConfig.inputRange)
-      {
-        delete[] predistortionConfig.inputRange;
-      }
-
-      if (predistortionConfig.outputRange)
-      {
-        delete[] predistortionConfig.outputRange;
-      }
-
-      predistortionConfig.inputRange = new float32_t[rangeSize];
-      predistortionConfig.outputRange = new float32_t[rangeSize];
-
-      loadFloatArray(arrayElem.data, "inputRange", predistortionConfig.inputRange, rangeSize);
-      loadFloatArray(arrayElem.data, "outputRange", predistortionConfig.outputRange, rangeSize);
-    }
+    loadIntArray(arrayElem.data, "coefficients", alaConfig.coefficients, sizeof(AlaConfiguration::coefficients) / sizeof(int32_t));
   }
 #endif
 }
-
 
 void FilterReader::extractDacAmpConfig(const uint8_t *data)
 {

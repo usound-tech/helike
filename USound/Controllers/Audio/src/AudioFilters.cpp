@@ -69,9 +69,9 @@ AudioFilters::AudioFilters(System::FilterConfiguration *filterConfig, uint32_t b
         blockSize
         ),
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-    preDistortion(
-        &filterConfig->predistortionConfig,
+#if ALA_MODULE_ENABLED == 1
+    ala(
+        &filterConfig->alaConfig,
         blockSize
         ),
 #endif
@@ -95,8 +95,8 @@ void AudioFilters::init()
   levelerDrc.init();
   limiterDrc.init();
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-  preDistortion.init();
+#if ALA_MODULE_ENABLED == 1
+  ala.init();
 #endif
 }
 
@@ -175,8 +175,8 @@ void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
     interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2);
   }
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-  preDistortion.run(
+#if ALA_MODULE_ENABLED == 1
+  ala.run(
       channelSamples[PcmChannel::LEFT],
       channelSamples[PcmChannel::RIGHT]
       );

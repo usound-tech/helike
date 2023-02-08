@@ -1,5 +1,6 @@
 /Release/
 /Debug/
+build/
 /Release2/
 .metadata
 bin/
@@ -23,7 +24,7 @@ local.properties
 *.pydevproject
 
 # CDT-specific (C/C++ Development Tooling)
-#.cproject
+.cproject
 
 # CDT- autotools
 .autotools
@@ -61,3 +62,6 @@ local.properties
 # Uncomment this line if you wish to ignore the project description file.
 # Typically, this file would be tracked if it contains build/dependency configurations:
 #.project
+.vscode/.cortex-debug.peripherals.state.json
+.vscode/.cortex-debug.registers.state.json
+STM32Make.make

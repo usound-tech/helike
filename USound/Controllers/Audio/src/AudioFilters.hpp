@@ -39,7 +39,7 @@
 #include "Drc.hpp"
 #include "Controllers/System/pub/SystemConfiguration.hpp"
 #include "BiquadFilters.hpp"
-#include "PreDistortionLookup.hpp"
+#include "USoundAla.hpp"
 
 
 /**
@@ -53,9 +53,9 @@ private:
   BiquadFilters xoverTweeterFilters;
   BiquadFilters xoverWooferFilters;
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-  PreDistortionLookup preDistortion;
-  #endif
+#if ALA_MODULE_ENABLED == 1
+  USoundAla ala;
+#endif
 
   Drc levelerDrc;
   Drc limiterDrc;

@@ -87,7 +87,7 @@ void BiquadFilters::run(PcmChannel channel, float32_t *pSrc, float32_t *pDst)
     arm_biquad_cascade_df1_f32(&filter[channel], pSrc, pDst, blockSize);
   }
   else if (pSrc != pDst)
-    {
-  	memcpy(pDst, pSrc, blockSize * sizeof(float));
-    }
+  {
+	memcpy(pDst, pSrc, blockSize * sizeof(float));
+  }
 }

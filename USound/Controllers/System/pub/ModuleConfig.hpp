@@ -39,8 +39,8 @@
 //!< When set to 1, it enables loading mp3 files
 #define MP3_READER_MODULE_ENABLED 0
 
-//!< When set to 1, it enables the predistortion filter
-#define PREDISTORTION_MODULE_ENABLED 1
+//!< When set to 1, it enables the ALA filter
+#define ALA_MODULE_ENABLED 1
 
 //!< When set to 1, the tone generator is included as an audio source
 #define TONE_GEN_ENABLED 0

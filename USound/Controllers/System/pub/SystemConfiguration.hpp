@@ -45,11 +45,10 @@
 
 #define MASTER_EQ_STAGES 8
 #define XOVER_EQ_STAGES 8
-#define PREDISTORTION_STAGES 8
+#define ALA_COEFFICIENT_SIZE 84
 
 namespace System
 {
-
 
 /**
  * Defines the system configuration attributes of a DAC interface
@@ -163,25 +162,14 @@ public:
   bool enabled = false;                                 //!< If false, the DRC block is bypassed
 };
 
-enum PredistortionCoeffcientType
-{
-  UPSAMPLING,
-  DOWNSAMPLING,
-  MAX_PREDISTORTION_COEFF_TYPES
-};
-
 /**
  * Defines the pre-distortion configuration attributes
  */
-struct PredistortionConfiguration
+struct AlaConfiguration
 {
 public:
-  float32_t coeffs[PredistortionCoeffcientType::MAX_PREDISTORTION_COEFF_TYPES][PREDISTORTION_STAGES * 5];  //!< Predistortion coefficients
-  float32_t *inputRange = nullptr;
-  float32_t *outputRange = nullptr;
-  uint32_t rangeSize = 0;
-  bool enabled = false;
-
+  int32_t coefficients[ALA_COEFFICIENT_SIZE];
+  bool enabled;
 };
 
 enum MasterEqCoeffcientType
@@ -215,8 +203,8 @@ public:
   DrcConfiguration levelerDrcConfig;
   DrcConfiguration limiterDrcConfig;
 
-#if PREDISTORTION_MODULE_ENABLED == 1
-  PredistortionConfiguration predistortionConfig;
+#if ALA_MODULE_ENABLED == 1
+  AlaConfiguration alaConfig;
 #endif
 };
 

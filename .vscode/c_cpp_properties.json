@@ -1,0 +1,42 @@
+{
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "Core/Inc",
+        "Drivers/CMSIS/DSP/Include/",
+        "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
+        "Drivers/CMSIS/Device/ST/STM32H7xx/Include/",
+        "Drivers/CMSIS/Include",
+        "Drivers/STM32H7xx_HAL_Driver/Inc",
+        "Drivers/STM32H7xx_HAL_Driver/Inc/",
+        "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy",
+        "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/",
+        "FATFS/App",
+        "FATFS/App/",
+        "FATFS/Target",
+        "FATFS/Target/",
+        "Middlewares/ST/SpiritDSP_MP3_Dec/inc/",
+        "Middlewares/Third_Party/FatFs/src",
+        "Middlewares/Third_Party/FatFs/src/",
+        "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2",
+        "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/",
+        "Middlewares/Third_Party/FreeRTOS/Source/include",
+        "Middlewares/Third_Party/FreeRTOS/Source/include/",
+        "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F",
+        "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/",
+        "USound/",
+        "USound/Ala/"
+      ],
+      "defines": [
+        "ARM_MATH_CM7",
+        "ARM_MATH_LOOPUNROLL",
+        "STM32H750xx",
+        "USE_HAL_DRIVER",
+        "__FPU_PRESENT=1"
+      ],
+      "compilerPath": "C:\\PROGRAM FILES (X86)\\ARM GNU TOOLCHAIN ARM-NONE-EABI\\12.2 REL1\\BIN\\ARM-NONE-EABI-G++.EXE"
+    }
+  ],
+  "version": 4
+}

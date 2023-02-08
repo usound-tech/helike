@@ -48,11 +48,12 @@ private:
   System::FilterConfiguration *filterConfig;
 
   void extractDrcConfig(const uint8_t *data, const char *name, System::DrcConfiguration &drcConfig);
-  void extractPredistortionConfig(const uint8_t *data, const char *name, System::PredistortionConfiguration &predistortionConfig);
+  void extractAlaConfig(const uint8_t *data, const char *name, System::AlaConfiguration &alaConfig);
   void extractDacAmpConfig(const uint8_t *data);
 
   uint32_t getArraySize(const uint8_t *data, const char *name);
   void loadFloatArray(const uint8_t *data, const char *name, float32_t *coeffArray, uint32_t maxCount);
+  void loadIntArray(const uint8_t *data, const char *name, int32_t *coeffArray, uint32_t maxCount);
   void loadInt(const uint8_t *data, const char *name, uint32_t *value);
   void loadString(const uint8_t *data, const char *name, std::string &value);
   void loadFloat32(const uint8_t *data, const char *name, float32_t *value);

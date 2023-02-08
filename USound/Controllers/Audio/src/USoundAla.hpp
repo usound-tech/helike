@@ -24,9 +24,9 @@
 //
 //====================================================================
 //
-//  Description: Pre-distortion lookup filter. It performs an audio gain conversion function.
-//  Filename: PredistortionLookup.hpp
-//  Author(s): Nik Kostaras (nk@socfpga.io)
+//  Description: This implements USound's ALA (Active Linearization Algorithm). More information: https://www.usound.com/whitepaper-active-linearization-algorithm-for-usound-mems-speakers/
+//  Filename: USoundAla.hpp
+//  Author(s): Nik Kostaras (nk@socfpga.io), Jonathan Arweck (jonathan.arweck@usound.com)
 //  Date: 6-May-2020
 //
 //====================================================================
@@ -34,37 +34,25 @@
 
 #pragma once
 
-#include "arm_math.h"
 #include "Controllers/System/pub/SystemConfiguration.hpp"
 #include "BiquadFilters.hpp"
 
+#define CHANNEL_BUFFER_SIZE 432
+
 /**
- * This class implements a mono-channel, pre-distortion lookup-table filter
- * with upsampling/downsampling to 192kHz
+ * This class implements USound's ALA (Active Linearization Algorithm).
  */
-class PreDistortionLookup
+class USoundAla
 {
 private:
-  System::PredistortionConfiguration *config;
-  BiquadFilters resamplingFiltersLeft;
-  BiquadFilters resamplingFiltersRight;
-
-
+  System::AlaConfiguration *config;
   uint32_t blockSize;
-
-  float32_t *resamplingBuffer;
-  float32_t *scalingBuffer;
-  float32_t *multiplicationBuffer;
-  float32_t *additionBuffer;
-  int lookupIdx = 0;
-
-  void filter(float32_t *val);
-  bool findRange(float32_t val);
-  void runChannel(float32_t *pSrc, BiquadFilters &resamplingFilters);
+  uint8_t* channelBuffers[MAX_CHANNELS];
+  uint8_t* globalBuffer;
 
 public:
-  PreDistortionLookup(System::PredistortionConfiguration *config, uint32_t blockSize);
+  USoundAla(System::AlaConfiguration *config, uint32_t blockSize);
 
   void init();
-  void run(float32_t *pSrcLeft, float32_t *pSrcRight);
+  void run(float *pSrcLeft, float *pSrcRight);
 };

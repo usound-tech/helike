@@ -177,11 +177,11 @@ SECTIONS
     . = ALIGN(8);
   } >DTCMRAM
 
-  ._ram :
+  ._ram(NOLOAD) :
   {
   } >RAM_D1
   
-  ._ram2 :
+  ._ram2(NOLOAD) :
   {
   } >RAM_D2
 

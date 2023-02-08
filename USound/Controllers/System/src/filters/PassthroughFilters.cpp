@@ -122,31 +122,9 @@ FilterConfiguration passthroughConfiguration = {
 
     .limiterDrcConfig = {}
 
-#if PREDISTORTION_MODULE_ENABLED == 1
+#if ALA_MODULE_ENABLED == 1
     ,
-    .predistortionConfig = {
-        .coeffs = {
-            {
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f
-            },
-            {
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 0.0f, 0.0f, 0.0f
-            }
-        },
+    .alaConfig = {
         .enabled = false
     }
 #endif

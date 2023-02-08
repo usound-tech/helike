@@ -1,0 +1,17 @@
+{
+    "cortex-debug.armToolchainPath": "C:\\PROGRAM FILES (X86)\\ARM GNU TOOLCHAIN ARM-NONE-EABI\\12.2 REL1\\BIN",
+    "cortex-debug.openocdPath": "C:\\PROGRAM FILES\\OPENOCD-20230111-0.12.0\\BIN\\OPENOCD.EXE",
+    "stm32-for-vscode.openOCDPath": "C:\\PROGRAM FILES\\OPENOCD-20230111-0.12.0\\BIN\\OPENOCD.EXE",
+    "files.associations": {
+        "random": "cpp",
+        "*.tcc": "cpp",
+        "limits": "cpp",
+        "ios": "cpp",
+        "system_error": "cpp",
+        "xlocale": "cpp",
+        "ostream": "cpp",
+        "typeinfo": "cpp",
+        "logger.h": "c",
+        "stdio.h": "c"
+    }
+}
