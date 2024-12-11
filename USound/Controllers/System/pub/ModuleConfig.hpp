@@ -56,3 +56,8 @@
 
 //!< When set to 1, it maps theft audio channel to right and vice-versa
 #define SWAP_AUDIO_CHANNELS 1
+
+// When set to true, the audio channel is inverted just before DAC for both Tweeter and Woofer
+// (to compensate for accidental phase inversion in Hardware)
+#define INVERT_LEFT_CHANNEL false
+#define INVERT_RIGHT_CHANNEL true

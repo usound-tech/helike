@@ -63,7 +63,7 @@ private:
   System::FilterConfiguration *filterConfig;
 
   void deinterlace16Tof32(const int16_t *pSrc, float32_t *pDst, uint32_t stride);
-  void interlacef32To16(const float32_t *pSrc, int16_t *pDst, uint32_t stride);
+  void interlacef32To16(const float32_t *pSrc, int16_t *pDst, uint32_t stride, bool invert);
 
 public:
   AudioFilters(System::FilterConfiguration *filterConfig, uint32_t blockSize);

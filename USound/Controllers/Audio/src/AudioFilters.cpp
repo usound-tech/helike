@@ -121,11 +121,17 @@ void AudioFilters::deinterlace16Tof32(const int16_t *pSrc, float32_t *pDst, uint
  * @param pDst
  * @param stride
  */
-void AudioFilters::interlacef32To16(const float32_t *pSrc, int16_t *pDst, uint32_t stride)
+void AudioFilters::interlacef32To16(const float32_t *pSrc, int16_t *pDst, uint32_t stride, bool invert)
 {
   for (uint32_t i = 0; i < blockSize; i++)
   {
-    *pDst = (int16_t) (roundf(pSrc[i] * (1 << 15)));
+    int16_t value = (int16_t) (roundf(pSrc[i] * (1 << 15)));
+    if (invert)
+    {
+      value = -value;
+    }
+
+    *pDst = value;
     pDst = &pDst[stride];
   }
 }
@@ -166,13 +172,13 @@ void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
     xoverTweeterFilters.run(PcmChannel::LEFT, channelSamples[PcmChannel::LEFT], channelSamples[PcmChannel::LEFT]);
     xoverTweeterFilters.run(PcmChannel::RIGHT, channelSamples[PcmChannel::RIGHT], channelSamples[PcmChannel::RIGHT]);
 
-    interlacef32To16(channelSamples[PcmChannel::LEFT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2);
-    interlacef32To16(channelSamples[PcmChannel::RIGHT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2);
+    interlacef32To16(channelSamples[PcmChannel::LEFT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2, INVERT_LEFT_CHANNEL);
+    interlacef32To16(channelSamples[PcmChannel::RIGHT + XOVER_SAMPLES], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2, INVERT_RIGHT_CHANNEL);
   }
   else
   {
-    interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2);
-    interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2);
+    interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_WOOFER][leftChannelIndex], 2, INVERT_LEFT_CHANNEL);
+    interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_WOOFER][!leftChannelIndex], 2, INVERT_RIGHT_CHANNEL);
   }
 
 #if ALA_MODULE_ENABLED == 1
@@ -182,8 +188,8 @@ void AudioFilters::run(int16_t *pSrc, int16_t *pDst[2])
       );
 #endif
 
-  interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_TWEETER][leftChannelIndex], 2);
-  interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_TWEETER][!leftChannelIndex], 2);
+  interlacef32To16(channelSamples[PcmChannel::LEFT], &pDst[STREAM_ID::STREAM_TWEETER][leftChannelIndex], 2, INVERT_LEFT_CHANNEL);
+  interlacef32To16(channelSamples[PcmChannel::RIGHT], &pDst[STREAM_ID::STREAM_TWEETER][!leftChannelIndex], 2, INVERT_RIGHT_CHANNEL);
 }
 
 
