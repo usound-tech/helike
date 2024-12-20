@@ -1,7 +1,7 @@
 {
-    "cortex-debug.armToolchainPath": "C:\\PROGRAM FILES (X86)\\ARM GNU TOOLCHAIN ARM-NONE-EABI\\12.2 REL1\\BIN",
-    "cortex-debug.openocdPath": "C:\\PROGRAM FILES\\OPENOCD-20230111-0.12.0\\BIN\\OPENOCD.EXE",
-    "stm32-for-vscode.openOCDPath": "C:\\PROGRAM FILES\\OPENOCD-20230111-0.12.0\\BIN\\OPENOCD.EXE",
+    "cortex-debug.armToolchainPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\12.2 rel1\\bin",
+    "cortex-debug.openocdPath": "C:\\USERS\\MICHELE LUCCHI\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-1.1\\.CONTENT\\BIN\\OPENOCD.EXE",
+    "stm32-for-vscode.openOCDPath": "C:\\USERS\\MICHELE LUCCHI\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-1.1\\.CONTENT\\BIN\\OPENOCD.EXE",
     "files.associations": {
         "random": "cpp",
         "*.tcc": "cpp",
